@@ -258,9 +258,15 @@ body {
 }
 
 .menu-item {
-  position: relative;
-  overflow: hidden;
-  /* убираем фиксированную ширину, так как размеры задаёт grid */
+  background-color: rgba(42, 42, 42, 0.85); /* полупрозрачный фон, можно заменить на нужный */
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s;
+}
+
+.menu-item:hover {
+  transform: scale(1.02);
 }
 
 .menu-item img {
@@ -275,19 +281,27 @@ body {
 
 
 
+/* Изменение размера и стиля заголовка блюда */
 .menu-item h3 {
-  margin: 10px 0 5px;
-  font-size: 1.2rem;        /* Увеличенный размер шрифта */
-  font-weight: bold;        /* Жирное начертание */
-  color: #FFA000;           /* Яркий цвет, например, оранжевый */
-  text-transform: uppercase; /* Можно добавить для акцента */
+  font-size: 1rem;       /* немного меньше, чем раньше */
+  color: #FFA000;        /* оставляем яркий оранжевый цвет */
+  margin-bottom: 5px;
+  text-transform: uppercase;
 }
 
-
+/* Изменение стиля описания и цены */
 .menu-item p {
-  font-size: 0.9rem;
-  font-weight: bold;
+  font-size: 0.85rem;    /* немного уменьшенный размер */
+  color: #ffffff;        /* белый цвет для читаемости */
+  margin: 2px 0;
 }
+
+/* Если хотите добавить фон или градиент вместо однотонного фона */
+.menu-item {
+  background: linear-gradient(135deg, rgba(42,42,42,0.85) 0%, rgba(30,30,30,0.85) 100%);
+}
+
+
 
 /* ===== АДАПТИВНЫЕ НАСТРОЙКИ ===== */
 @media (max-width: 500px) {
