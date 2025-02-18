@@ -100,24 +100,46 @@ body {
 /* ===== КНОПКИ info-btn ===== */
 /* Основной контейнер с отступом снизу для таб-бара */
 /* Обновлённый контейнер: добавляем нижний отступ, чтобы контент не перекрывался таб-баром */
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 20px 80px; /* нижний отступ, чтобы контент не закрывался таб-баром */
+.info-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;              /* Используем всю ширину экрана */
+  z-index: 100;
+  background-color: #2A2A2A;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  /* Отказываемся от transform и max-width, чтобы панель заняла всю ширину */
 }
 
-/* Для экранов меньше 500px – уменьшаем размеры таб-бара */
-@media (max-width: 500px) {
-  .info-buttons {
-    width: 100%; /* Используем всю ширину экрана */
-    flex-wrap: wrap; /* Разрешаем перенос кнопок */
-    justify-content: space-around;
-  }
-  .info-btn {
-    flex: 1 1 45%; /* Каждая кнопка займет примерно 45% ширины */
-    margin-bottom: 10px;
-  }
+.info-btn {
+  flex: 1;                  /* Каждая кнопка занимает равную долю */
+  max-width: 100px;         /* При необходимости ограничим максимальную ширину */
+  margin: 0 5px;
+  background-color: #444;
+  color: #FFFFFF;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border 0.3s;
 }
+
+.info-btn:hover {
+  background-color: #FFA000;
+  color: #000;
+}
+
+.info-btn.active {
+  background-color: #444;
+  color: #FFFFFF;
+  border: 2px solid #FFA000;
+}
+
+
 
 
 
@@ -230,21 +252,24 @@ body {
 .items-list {
   display: grid;
   gap: 15px;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr); /* Всегда две колонки */
 }
 
-
-/* Для экранов больше 600px – карточки занимают 45% (2 колонки) */
 .menu-item {
-  width: 45%;
+  position: relative;
+  overflow: hidden;
+  /* убираем фиксированную ширину, так как размеры задаёт grid */
 }
 
-/* Для экранов меньше 600px – карточки занимают 90% (1 колонка) */
-@media (max-width: 600px) {
-  .menu-item {
-    width: 90%;
-  }
+.menu-item img {
+  width: 100%;
+  height: 150px;            /* Фиксированная высота для всех изображений */
+  object-fit: contain;      /* Сохраняем пропорции, показывая всю картинку */
+  object-position: center;  /* Центрирование изображения */
 }
+
+
+
 
 
 
@@ -296,32 +321,32 @@ body {
 /* Стили для модального окна */
 /* Стили для модального окна заказов */
 /* Стили для модального окна заказов */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 200;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.8);
-}
+/* Модальное окно – остаётся фиксированным, но содержимое адаптивное */
 
-/* Ограничение для контента модального окна */
+
 .modal-content {
-  max-width: 90%;
-  max-height: 90%;
-  overflow: auto; /* чтобы, если контент слишком большой, появлялась прокрутка */
+  background-color: #2A2A2A;
+  margin: 10% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 300px;
+  border-radius: 10px;
+  color: #fff;
+  box-sizing: border-box;
+}
+/* Если модальное окно заказов, можно задать аналогичные правила: */
+.order-modal-content {
+  max-width: 500px;
 }
 
 /* Ограничение для изображений внутри модального окна */
 .modal-content img {
-  max-width: 100%;
+  max-width: 80%;
   height: auto;
   display: block;
   margin: 0 auto;
 }
+
 
 
 .close {
