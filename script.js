@@ -30,6 +30,15 @@ document.addEventListener("DOMContentLoaded", async function() {
     };
     return mapping[name.toLowerCase()] || name.toLowerCase();
   }
+
+  // Глобальный объект для маппинга id категории на её имя
+let categoriesMap = {};
+
+// Функция для получения названия категории по id из categoriesMap
+function getCategoryNameFromId(category_id) {
+  return categoriesMap[category_id] || "unknown";
+}
+
 // ------------------ Инициализация Firebase ------------------
 // Добавьте скрипты Firebase в HTML, например, в <head> или перед </body>:
 // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -71,9 +80,12 @@ const db = firebase.firestore();
     if (container) {
       container.innerHTML = "";
       categories.forEach(cat => {
+        // Сохраняем маппинг: id -> имя
+        categoriesMap[cat.id] = cat.name;
+        
         const card = document.createElement('div');
         card.classList.add('category-card');
-
+  
         const categoryKey = mapCategoryName(cat.name);
         let subcategory = "";
         if (categoryKey === "pizza") {
@@ -83,8 +95,7 @@ const db = firebase.firestore();
         if (subcategory) {
           card.dataset.subcategory = subcategory;
         }
-
-        // Используем URL изображения из Firestore, если он есть, иначе локальные картинки
+  
         card.style.backgroundImage = `url('${cat.imageUrl || categoryImages[categoryKey] || "images/default.jpg"}')`;
         card.innerHTML = `<div class="overlay"><h3>${cat.name}</h3></div>`;
         card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
@@ -93,6 +104,7 @@ const db = firebase.firestore();
       addCategoryCardListeners();
     }
   }
+  
   // Функция для подписки на коллекцию блюд в Firestore
   function subscribeDishes() {
     db.collection('menu').onSnapshot((snapshot) => {
@@ -117,23 +129,24 @@ const db = firebase.firestore();
       dishes.forEach(dish => {
         const item = document.createElement('div');
         item.classList.add('menu-item');
-
-        // Если в Firestore хранится либо categoryName, либо используйте category_id при необходимости
-        const mappedCategory = dish.categoryName ? mapCategoryName(dish.categoryName) : "";
+  
+        // Если в блюде есть поле categoryName, используем его,
+        // иначе получаем название через category_id из categoriesMap
+        const mappedCategory = dish.categoryName 
+            ? mapCategoryName(dish.categoryName) 
+            : mapCategoryName(getCategoryNameFromId(dish.category_id));
         item.dataset.category = mappedCategory;
         if (mappedCategory === "pizza") {
           item.dataset.subcategory = "pizza30";
         }
-
+  
         let imageUrl = dish.image_path;
         if (imageUrl) {
-          // Заменяем локальный путь на URL, по которому размещены изображения
-          imageUrl = imageUrl.replace("C:\\qr-menu\\", "https://kyzylalma82.github.io/kyzylalma/");
+          imageUrl = imageUrl.replace("C:\\cafe_app\\bludim\\", "images/");
         } else {
-          imageUrl = "https://kyzylalma82.github.io/kyzylalma/images/default-dish.jpg";
+          imageUrl = "images/default-dish.jpg";
         }
-
-
+  
         item.innerHTML = `
           <img src="${imageUrl}" alt="${dish.name}">
           <h3>${dish.name}</h3>
@@ -145,11 +158,12 @@ const db = firebase.firestore();
         item.dataset.imageUrl = imageUrl;
         item.dataset.id = dish.id;
         itemsList.appendChild(item);
-
+  
         console.log(`Добавлено блюдо: ${dish.name} | mappedCategory: ${mappedCategory}`);
       });
     }
   }
+  
 
 // Функция для показа блюд по выбранной категории (без изменений)
 function showMenuItems(category, subcategory = "") {
