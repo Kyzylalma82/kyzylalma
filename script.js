@@ -676,10 +676,10 @@ function handleAddToOrderClick(item, addBtn) {
   // Добавляем блюдо в заказы и обновляем счётчик
   addToOrder(dish);
   updateOrdersCount();
-  
+
   // Удаляем кнопку "+"
   addBtn.remove();
-  
+
   // Создаем панель управления количеством
   const quantityControls = document.createElement('div');
   quantityControls.classList.add('quantity-controls');
@@ -714,17 +714,22 @@ function handleAddToOrderClick(item, addBtn) {
         existing.quantity -= 1;
         quantitySpan.textContent = existing.quantity;
       } else {
-        // Если количество станет 0, удаляем блюдо и панель управления,
-        // затем добавляем кнопку "+"
+        // Если количество станет 0, удаляем блюдо и панель управления, затем создаем новую кнопку "+"
         orders = orders.filter(o => o.id !== dish.id);
         quantityControls.remove();
         const newAddBtn = createAddToOrderButton(item);
+        // Привязываем обработчик напрямую к новой кнопке
+        newAddBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          handleAddToOrderClick(item, newAddBtn);
+        });
         item.appendChild(newAddBtn);
       }
       updateOrdersCount();
     }
   });
 }
+
 
 // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
 function addAddToOrderListeners() {
@@ -839,9 +844,5 @@ function addSearchFunctionality() {
   addOrderModalListeners();
   addAddToOrderListeners();
   addSearchFunctionality();
-  addInfoButtonListeners();
-  addDishModalListeners();
-  addOrderModalListeners();
-  addAddToOrderListeners();
-  addSearchFunctionality();
+
 });
