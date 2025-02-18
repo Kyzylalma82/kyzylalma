@@ -32,32 +32,31 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   // Глобальный объект для маппинга id категории на её имя
-let categoriesMap = {};
+  let categoriesMap = {};
 
-// Функция для получения названия категории по id из categoriesMap
-function getCategoryNameFromId(category_id) {
-  return categoriesMap[category_id] || "unknown";
-}
+  // Функция для получения названия категории по id из categoriesMap
+  function getCategoryNameFromId(category_id) {
+    return categoriesMap[category_id] || "unknown";
+  }
 
-// ------------------ Инициализация Firebase ------------------
-// Добавьте скрипты Firebase в HTML, например, в <head> или перед </body>:
-// <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-// <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  // ------------------ Инициализация Firebase ------------------
+  // Подключите скрипты Firebase в HTML (в <head> или перед </body>):
+  // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCBrM43FbbmUGkb3hg1c7TvATWE5nG843Q",
+    authDomain: "qrmenu-8de3b.firebaseapp.com",
+    projectId: "qrmenu-8de3b",
+    storageBucket: "qrmenu-8de3b.firebasestorage.app",
+    messagingSenderId: "860100694312",
+    appId: "1:860100694312:web:060ffbc16f3561349b401d"
+  };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCBrM43FbbmUGkb3hg1c7TvATWE5nG843Q",
-  authDomain: "qrmenu-8de3b.firebaseapp.com",
-  projectId: "qrmenu-8de3b",
-  storageBucket: "qrmenu-8de3b.firebasestorage.app",
-  messagingSenderId: "860100694312",
-  appId: "1:860100694312:web:060ffbc16f3561349b401d"
-};
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.firestore();
-// ------------------------------------------------------------
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.firestore();
+  // ------------------------------------------------------------
 
   // Функция для загрузки категорий
   function subscribeCategories() {
@@ -74,6 +73,7 @@ const db = firebase.firestore();
       console.error('Ошибка подписки на категории:', error);
     });
   }
+  
   // Функция для отрисовки категорий
   function renderCategories(categories) {
     const container = document.getElementById('categories-cards-container');
@@ -101,6 +101,8 @@ const db = firebase.firestore();
         card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
         container.appendChild(card);
       });
+      // Если дополнительных слушателей не нужны, можно определить пустую функцию:
+      function addCategoryCardListeners() {}
       addCategoryCardListeners();
     }
   }
@@ -130,8 +132,7 @@ const db = firebase.firestore();
         const item = document.createElement('div');
         item.classList.add('menu-item');
   
-        // Если в блюде есть поле categoryName, используем его,
-        // иначе получаем название через category_id из categoriesMap
+        // Если в блюде есть поле categoryName, используем его, иначе получаем название через category_id
         const mappedCategory = dish.categoryName 
             ? mapCategoryName(dish.categoryName) 
             : mapCategoryName(getCategoryNameFromId(dish.category_id));
@@ -164,60 +165,24 @@ const db = firebase.firestore();
     }
   }
   
-
-// Функция для показа блюд по выбранной категории (без изменений)
-function showMenuItems(category, subcategory = "") {
-  const infoCard = document.querySelector('.info-card');
-  if (infoCard) {
-    infoCard.style.display = "none";
+  // Функция для показа блюд по выбранной категории
+  function showMenuItems(category, subcategory = "") {
+    const infoCard = document.querySelector('.info-card');
+    if (infoCard) {
+      infoCard.style.display = "none";
+    }
+    document.getElementById('categories-cards-container').style.display = "none";
+    document.getElementById('menu-items').style.display = "block";
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+      const itemCat = item.dataset.category;
+      const itemSub = item.dataset.subcategory || "";
+      item.style.display = (itemCat === category && (subcategory === "" || itemSub === subcategory))
+        ? "block"
+        : "none";
+    });
   }
-  document.getElementById('categories-cards-container').style.display = "none";
-  document.getElementById('menu-items').style.display = "block";
-  const menuItems = document.querySelectorAll('.menu-item');
-  menuItems.forEach(item => {
-    const itemCat = item.dataset.category;
-    const itemSub = item.dataset.subcategory || "";
-    item.style.display = (itemCat === category && (subcategory === "" || itemSub === subcategory))
-      ? "block"
-      : "none";
-  });
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   
-
   // Функция для показа списка заказов в модальном окне
   function showOrdersModal() {
     const orderModal = document.getElementById('order-modal');
@@ -248,31 +213,24 @@ function showMenuItems(category, subcategory = "") {
     orderModal.style.display = "block";
     addOrderActionListeners();
   }
-
+  
   // Функция для обновления счётчика заказов на кнопке "Заказы"
   function updateOrdersCount() {
     const ordersButton = document.querySelector('.info-btn[data-category="orders"]');
     if (ordersButton) {
       const total = orders.reduce((acc, order) => acc + order.quantity, 0);
-      // Находим элемент-счётчик внутри кнопки
       let countSpan = ordersButton.querySelector('.orders-count');
       if (!countSpan) {
-        // Если его нет, создаём его, не затрагивая остальную разметку (иконку)
         countSpan = document.createElement('span');
         countSpan.classList.add('orders-count');
         ordersButton.appendChild(countSpan);
       }
-      // Обновляем только текст счётчика
       countSpan.textContent = `${total}`;
     }
     updateDishCardsUI();
   }
   
-  
-  
-  
-  
-  // Функция для добавления блюда в заказы (без открытия модального окна)
+  // Функция для добавления блюда в заказы
   function addToOrder(dish) {
     const existing = orders.find(o => o.id === dish.id);
     if (existing) {
@@ -284,13 +242,12 @@ function showMenuItems(category, subcategory = "") {
     console.log("Заказы:", orders);
   }
   
-
   // Функция для добавления обработчиков действий внутри модального окна заказов
   function addOrderActionListeners() {
     const removeButtons = document.querySelectorAll('.remove-order');
     const incrementButtons = document.querySelectorAll('.increment-order');
     const decrementButtons = document.querySelectorAll('.decrement-order');
-
+  
     removeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const index = btn.dataset.index;
@@ -299,7 +256,7 @@ function showMenuItems(category, subcategory = "") {
         updateOrdersCount();
       });
     });
-
+  
     incrementButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const index = btn.dataset.index;
@@ -308,7 +265,7 @@ function showMenuItems(category, subcategory = "") {
         updateOrdersCount();
       });
     });
-
+  
     decrementButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const index = btn.dataset.index;
@@ -322,42 +279,31 @@ function showMenuItems(category, subcategory = "") {
       });
     });
   }
-
+  
   // Функция для добавления обработчиков для статичных info-кнопок (таб-бар)
   function addInfoButtonListeners() {
     const infoButtons = document.querySelectorAll('.info-btn');
     infoButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        // Убираем класс active у всех кнопок и добавляем его для нажатой кнопки
         infoButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
   
-        // Если это кнопка "Главное меню"
         if (btn.dataset.action === "categories") {
-          // Показываем главный экран – баннер, info-card и категории
           document.querySelector('.banner').style.display = "block";
           document.querySelector('.info-card').style.display = "block";
           document.getElementById('categories-cards-container').style.display = "flex";
           document.getElementById('menu-items').style.display = "none";
           window.scrollTo(0, 0);
         } else {
-          // Для остальных кнопок (например, Пицца, Напитки, Заказы)
-          // Скрываем info-card (главный экран)
           document.querySelector('.info-card').style.display = "none";
-          // Если это Заказы, открываем модальное окно заказов
           if (btn.dataset.category === "orders") {
             showOrdersModal();
           } else {
-            // Для категорий блюд (Пицца, Напитки и т.д.)
             document.getElementById('categories-cards-container').style.display = "none";
             document.getElementById('menu-items').style.display = "block";
             const menuItems = document.querySelectorAll('.menu-item');
             menuItems.forEach(item => {
-              if (item.dataset.category === btn.dataset.category) {
-                item.style.display = "block";
-              } else {
-                item.style.display = "none";
-              }
+              item.style.display = (item.dataset.category === btn.dataset.category) ? "block" : "none";
             });
           }
         }
@@ -365,10 +311,7 @@ function showMenuItems(category, subcategory = "") {
     });
   }
   
-  
-  
-
-  // Функция для добавления обработчиков для модального окна блюд (открывается при клике на блюдо, не на плюс)
+  // Функция для добавления обработчиков для модального окна блюд (при клике на блюдо, не на кнопку +)
   function addDishModalListeners() {
     const dishItems = document.querySelectorAll('.menu-item');
     const modal = document.getElementById('dish-modal');
@@ -376,16 +319,13 @@ function showMenuItems(category, subcategory = "") {
     const modalClose = document.getElementById('modal-close');
   
     dishItems.forEach(item => {
-      // Открываем модальное окно при клике по блюду (если клик не по кнопке +)
       item.addEventListener('click', (e) => {
-        // Если клик по кнопке добавления в заказ (на карточке), не открываем модальное окно
         if (e.target.classList.contains('add-to-order')) return;
   
         const dishName = item.querySelector('h3').textContent;
         const dishDescription = item.dataset.description || "";
-        const dishPrice = item.querySelector('p').textContent; // первая строка цены
+        const dishPrice = item.querySelector('p').textContent;
         const dishImageHTML = item.querySelector('img').outerHTML;
-        // Формируем базовый контент модального окна
         modalContent.innerHTML = `
           <h2>${dishName}</h2>
           ${dishImageHTML}
@@ -395,15 +335,11 @@ function showMenuItems(category, subcategory = "") {
         `;
         modal.style.display = "block";
   
-        // Получаем кнопку добавления в модальном окне
         const modalAddButton = modalContent.querySelector('.add-to-order');
-        // Привязываем обработчик к кнопке внутри модального окна
         modalAddButton.addEventListener('click', (e) => {
           e.stopPropagation();
-          // Если панель управления уже добавлена, ничего не делаем
           if (modalContent.querySelector('.quantity-controls')) return;
   
-          // Собираем данные блюда из модального окна
           const dish = {
             id: item.dataset.id || dishName,
             name: dishName,
@@ -415,14 +351,11 @@ function showMenuItems(category, subcategory = "") {
             description: dishDescription,
             imageUrl: item.dataset.imageUrl
           };
-          // Добавляем блюдо в заказы (если уже есть, увеличиваем количество)
           addToOrder(dish);
           updateOrdersCount();
   
-          // Удаляем кнопку + из модального окна
           modalAddButton.remove();
   
-          // Создаем панель управления количеством
           const quantityControls = document.createElement('div');
           quantityControls.classList.add('quantity-controls');
           quantityControls.innerHTML = `
@@ -436,7 +369,6 @@ function showMenuItems(category, subcategory = "") {
           const decrementBtn = quantityControls.querySelector('.decrement');
           const quantitySpan = quantityControls.querySelector('.quantity');
   
-          // Обработчик для кнопки "+" в модальном окне
           incrementBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const existing = orders.find(o => o.id === dish.id);
@@ -447,7 +379,6 @@ function showMenuItems(category, subcategory = "") {
             }
           });
   
-          // Обработчик для кнопки "–" в модальном окне
           decrementBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const existing = orders.find(o => o.id === dish.id);
@@ -458,16 +389,11 @@ function showMenuItems(category, subcategory = "") {
               } else {
                 orders = orders.filter(o => o.id !== dish.id);
                 quantityControls.remove();
-                // Восстанавливаем кнопку +, чтобы можно было добавить блюдо снова
-                const newAddBtn = document.createElement('button');
-                newAddBtn.classList.add('add-to-order');
-                newAddBtn.textContent = "+";
+                const newAddBtn = createAddToOrderButton(item);
                 modalContent.appendChild(newAddBtn);
-                // Привяжем обработчик, используя addDishModalListeners (или напрямую)
                 newAddBtn.addEventListener('click', (e) => {
                   e.stopPropagation();
-                  // Повторно вызываем обработчик для панели (рекурсивно можно вызвать ту же логику)
-                  addDishModalListeners(); // или перезагрузить модальное окно
+                  handleAddToOrderClick(item, newAddBtn);
                 });
               }
               updateOrdersCount();
@@ -510,10 +436,8 @@ function showMenuItems(category, subcategory = "") {
         e.stopPropagation();
         const item = btn.closest('.menu-item');
         
-        // Если уже есть панель управления количеством, ничего не делаем
         if (item.querySelector('.quantity-controls')) return;
         
-        // Собираем данные блюда
         const dish = {
           id: item.dataset.id || item.querySelector('h3').textContent,
           name: item.querySelector('h3').textContent,
@@ -526,14 +450,11 @@ function showMenuItems(category, subcategory = "") {
           imageUrl: item.dataset.imageUrl
         };
         
-        // Добавляем блюдо в заказы (если уже есть — увеличиваем количество)
         addToOrder(dish);
         updateOrdersCount();
         
-        // Удаляем кнопку "add-to-order"
         btn.remove();
         
-        // Создаем панель управления количеством
         const quantityControls = document.createElement('div');
         quantityControls.classList.add('quantity-controls');
         quantityControls.innerHTML = `
@@ -541,15 +462,12 @@ function showMenuItems(category, subcategory = "") {
           <span class="quantity">1</span>
           <button class="increment">+</button>
         `;
-        
-        // Добавляем панель управления в карточку блюда
         item.appendChild(quantityControls);
         
         const incrementBtn = quantityControls.querySelector('.increment');
         const decrementBtn = quantityControls.querySelector('.decrement');
         const quantitySpan = quantityControls.querySelector('.quantity');
         
-        // Обработчик для кнопки "+"
         incrementBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           const existing = orders.find(o => o.id === dish.id);
@@ -560,7 +478,6 @@ function showMenuItems(category, subcategory = "") {
           }
         });
         
-        // Обработчик для кнопки "–"
         decrementBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           const existing = orders.find(o => o.id === dish.id);
@@ -569,21 +486,14 @@ function showMenuItems(category, subcategory = "") {
               existing.quantity -= 1;
               quantitySpan.textContent = existing.quantity;
             } else {
-              // Если количество станет 0, удаляем блюдо из заказов и панель управления,
-              // затем возвращаем кнопку "add-to-order"
               orders = orders.filter(o => o.id !== dish.id);
               quantityControls.remove();
-              const newBtn = document.createElement('button');
-              newBtn.classList.add('add-to-order');
-              newBtn.textContent = "+";
-              // Повторно привязываем обработчик для новой кнопки
-              newBtn.addEventListener('click', (e) => {
+              const newAddBtn = createAddToOrderButton(item);
+              item.appendChild(newAddBtn);
+              newAddBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // Вызываем эту же функцию для нового элемента
-                addAddToOrderListeners();
-                newBtn.click(); // запускаем клик, чтобы добавить блюдо заново
+                handleAddToOrderClick(item, newAddBtn);
               });
-              item.appendChild(newBtn);
             }
             updateOrdersCount();
           }
@@ -592,251 +502,26 @@ function showMenuItems(category, subcategory = "") {
     });
   }
   
-  function addOrderModalListeners() {
-    const orderModal = document.getElementById('order-modal');
-    const orderModalClose = document.getElementById('order-modal-close');
-    orderModalClose.addEventListener('click', () => {
-      orderModal.style.display = "none";
-    });
-    window.addEventListener('click', (event) => {
-      if (event.target === orderModal) {
-        orderModal.style.display = "none";
+  function addSearchFunctionality() {
+    const searchInput = document.querySelector('.search-bar input');
+    if (!searchInput) return;
+  
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (query !== "") {
+        document.getElementById('categories-cards-container').style.display = "none";
+        document.getElementById('menu-items').style.display = "block";
       }
+      
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        const dishName = item.querySelector('h3') ? item.querySelector('h3').textContent.toLowerCase() : "";
+        item.style.display = (dishName.indexOf(query) > -1) ? "block" : "none";
+      });
     });
   }
-
-
-// Функция для обновления UI карточек блюд в категории
-function updateDishCardsUI() {
-  const dishItems = document.querySelectorAll('.menu-item');
-  dishItems.forEach(item => {
-    const dishId = item.dataset.id;
-    const existing = orders.find(o => o.id == dishId);
-    if (!existing) {
-      const qc = item.querySelector('.quantity-controls');
-      if (qc) qc.remove();
-      if (!item.querySelector('.add-to-order')) {
-        const newAddBtn = createAddToOrderButton(item);
-        item.appendChild(newAddBtn);
-      }
-    } else {
-      const qc = item.querySelector('.quantity-controls');
-      if (qc) {
-        const quantitySpan = qc.querySelector('.quantity');
-        if (quantitySpan) {
-          quantitySpan.textContent = existing.quantity;
-        }
-      }
-    }
-  });
-}
-
-
-// В updateOrdersCount() обязательно вызывайте updateDishCardsUI() после обновления массива orders:
-
-
-
-
-
-
-
-
-
-
-// Функция для создания кнопки добавления в заказ
-function createAddToOrderButton(item) {
-  const btn = document.createElement('button');
-  btn.classList.add('add-to-order');
-  btn.textContent = "+";
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    handleAddToOrderClick(item, btn);
-  });
-  return btn;
-}
-
-// Функция для обработки клика по кнопке "add-to-order"
-function handleAddToOrderClick(item, addBtn) {
-  // Если уже существует панель управления, ничего не делаем
-  if (item.querySelector('.quantity-controls')) return;
-
-  // Собираем данные блюда
-  const dish = {
-    id: item.dataset.id || item.querySelector('h3').textContent,
-    name: item.querySelector('h3').textContent,
-    price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-    weight: item.querySelector('p:nth-of-type(2)') 
-              ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
-              : "",
-    quantity: 1,
-    description: item.dataset.description || "",
-    imageUrl: item.dataset.imageUrl
-  };
-
-  // Добавляем блюдо в заказы и обновляем счётчик
-  addToOrder(dish);
-  updateOrdersCount();
-
-  // Удаляем кнопку "+"
-  addBtn.remove();
-
-  // Создаем панель управления количеством
-  const quantityControls = document.createElement('div');
-  quantityControls.classList.add('quantity-controls');
-  quantityControls.innerHTML = `
-    <button class="decrement">-</button>
-    <span class="quantity">1</span>
-    <button class="increment">+</button>
-  `;
-  item.appendChild(quantityControls);
-
-  const incrementBtn = quantityControls.querySelector('.increment');
-  const decrementBtn = quantityControls.querySelector('.decrement');
-  const quantitySpan = quantityControls.querySelector('.quantity');
-
-  // Обработчик для кнопки "+"
-  incrementBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const existing = orders.find(o => o.id === dish.id);
-    if (existing) {
-      existing.quantity += 1;
-      quantitySpan.textContent = existing.quantity;
-      updateOrdersCount();
-    }
-  });
-
-  // Обработчик для кнопки "-"
-  decrementBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const existing = orders.find(o => o.id === dish.id);
-    if (existing) {
-      if (existing.quantity > 1) {
-        existing.quantity -= 1;
-        quantitySpan.textContent = existing.quantity;
-      } else {
-        // Если количество станет 0, удаляем блюдо и панель управления, затем создаем новую кнопку "+"
-        orders = orders.filter(o => o.id !== dish.id);
-        quantityControls.remove();
-        const newAddBtn = createAddToOrderButton(item);
-        // Привязываем обработчик напрямую к новой кнопке
-        newAddBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          handleAddToOrderClick(item, newAddBtn);
-        });
-        item.appendChild(newAddBtn);
-      }
-      updateOrdersCount();
-    }
-  });
-}
-
-
-// Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
-function addAddToOrderListeners() {
-  const addButtons = document.querySelectorAll('.menu-item .add-to-order');
-  addButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const item = btn.closest('.menu-item');
-      
-      // Если уже есть панель управления, ничего не делаем
-      if (item.querySelector('.quantity-controls')) return;
-      
-      // Собираем данные блюда
-      const dish = {
-        id: item.dataset.id || item.querySelector('h3').textContent,
-        name: item.querySelector('h3').textContent,
-        price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-        weight: item.querySelector('p:nth-of-type(2)') 
-                ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
-                : "",
-        quantity: 1,
-        description: item.dataset.description || "",
-        imageUrl: item.dataset.imageUrl
-      };
-      
-      // Добавляем блюдо в заказы и обновляем счётчик
-      addToOrder(dish);
-      updateOrdersCount();
-      
-      // Удаляем кнопку "add-to-order"
-      btn.remove();
-      
-      // Создаем панель управления количеством
-      const quantityControls = document.createElement('div');
-      quantityControls.classList.add('quantity-controls');
-      quantityControls.innerHTML = `
-        <button class="decrement">-</button>
-        <span class="quantity">1</span>
-        <button class="increment">+</button>
-      `;
-      item.appendChild(quantityControls);
-      
-      const incrementBtn = quantityControls.querySelector('.increment');
-      const decrementBtn = quantityControls.querySelector('.decrement');
-      const quantitySpan = quantityControls.querySelector('.quantity');
-      
-      // Обработчик для кнопки "+"
-      incrementBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const existing = orders.find(o => o.id === dish.id);
-        if (existing) {
-          existing.quantity += 1;
-          quantitySpan.textContent = existing.quantity;
-          updateOrdersCount();
-        }
-      });
-      
-      // Обработчик для кнопки "-"
-      decrementBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const existing = orders.find(o => o.id === dish.id);
-        if (existing) {
-          if (existing.quantity > 1) {
-            existing.quantity -= 1;
-            quantitySpan.textContent = existing.quantity;
-          } else {
-            orders = orders.filter(o => o.id !== dish.id);
-            quantityControls.remove();
-            const newAddBtn = createAddToOrderButton(item);
-            item.appendChild(newAddBtn);
-          }
-          updateOrdersCount();
-        }
-      });
-    });
-  });
-}
-
-
-function addSearchFunctionality() {
-  const searchInput = document.querySelector('.search-bar input');
-  if (!searchInput) return;
-
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.trim().toLowerCase();
-    // Если запрос не пустой – скрываем категории, показываем блюда
-    if (query !== "") {
-      document.getElementById('categories-cards-container').style.display = "none";
-      document.getElementById('menu-items').style.display = "block";
-    }
-    
-    // Фильтрация карточек блюд по названию
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
-      const dishName = item.querySelector('h3') ? item.querySelector('h3').textContent.toLowerCase() : "";
-      if (dishName.indexOf(query) > -1) {
-        item.style.display = "block";
-      } else {
-        item.style.display = "none";
-      }
-    });
-  });
-}
-
-
-
-  // Вызываем функции загрузки и обработчиков
+  
+  // Вызываем функции загрузки и обработчиков (вызывайте их только один раз!)
   subscribeCategories();
   subscribeDishes();
   addInfoButtonListeners();
@@ -844,5 +529,4 @@ function addSearchFunctionality() {
   addOrderModalListeners();
   addAddToOrderListeners();
   addSearchFunctionality();
-
 });
