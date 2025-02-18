@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   // ------------------ Инициализация Firebase ------------------
-  // В HTML должны быть подключены скрипты:
+  // Убедитесь, что в HTML подключены:
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   const firebaseConfig = {
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция для отрисовки категорий и заполнения categoriesMap
+  // Функция для отрисовки категорий
   function renderCategories(categories) {
     const container = document.getElementById('categories-cards-container');
     if (container) {
@@ -116,13 +116,8 @@ document.addEventListener("DOMContentLoaded", async function() {
         card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
         container.appendChild(card);
       });
-      addCategoryCardListeners();
+      addInfoButtonListeners();
     }
-  }
-
-  // Функция-заглушка для обработчиков карточек категорий (при необходимости расширьте её)
-  function addCategoryCardListeners() {
-    // Дополнительная логика для карточек категорий, если нужна.
   }
 
   // Функция для отрисовки блюд
@@ -134,6 +129,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         const item = document.createElement('div');
         item.classList.add('menu-item');
 
+        // Если в блюде есть поле categoryName, используем его, иначе получаем название через category_id
         const mappedCategory = dish.categoryName 
             ? mapCategoryName(dish.categoryName) 
             : mapCategoryName(getCategoryNameFromId(dish.category_id));
@@ -163,6 +159,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         console.log(`Добавлено блюдо: ${dish.name} | mappedCategory: ${mappedCategory}`);
       });
+      addAddToOrderListeners();
     }
   }
 
@@ -383,7 +380,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция для добавления обработчиков для всех кнопок "add-to-order" внутри карточек блюд
+  // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
   function addAddToOrderListeners() {
     const addButtons = document.querySelectorAll('.menu-item .add-to-order');
     addButtons.forEach(btn => {
@@ -455,7 +452,25 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция для добавления обработчиков для статичных info-кнопок (таб-бар)
+  function addSearchFunctionality() {
+    const searchInput = document.querySelector('.search-bar input');
+    if (!searchInput) return;
+  
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      if (query !== "") {
+        document.getElementById('categories-cards-container').style.display = "none";
+        document.getElementById('menu-items').style.display = "block";
+      }
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        const dishName = item.querySelector('h3') ? item.querySelector('h3').textContent.toLowerCase() : "";
+        item.style.display = (dishName.indexOf(query) > -1) ? "block" : "none";
+      });
+    });
+  }
+
+  // Функция для обработчиков info-кнопок (например, верхнего меню)
   function addInfoButtonListeners() {
     const infoButtons = document.querySelectorAll('.info-btn');
     infoButtons.forEach(btn => {
@@ -603,7 +618,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция для добавления обработчиков для кнопки "add-to-order" внутри карточек блюд (без открытия модального окна)
+  // Функция для добавления обработчиков для кнопки "add-to-order" внутри карточек блюд
   function addAddToOrderListeners() {
     const addButtons = document.querySelectorAll('.menu-item .add-to-order');
     addButtons.forEach(btn => {
@@ -693,12 +708,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Вместо вызова fetch, используем Firebase-подписки:
+  // Используем Firebase-подписки вместо fetch-запросов
   subscribeCategories();
   subscribeDishes();
   addInfoButtonListeners();
   addDishModalListeners();
-  addOrderModalListeners();
+  addOrderActionListeners();
   addAddToOrderListeners();
   addSearchFunctionality();
 });
