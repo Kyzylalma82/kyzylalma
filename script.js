@@ -30,114 +30,177 @@ document.addEventListener("DOMContentLoaded", async function() {
     };
     return mapping[name.toLowerCase()] || name.toLowerCase();
   }
+// ------------------ Инициализация Firebase ------------------
+// Добавьте скрипты Firebase в HTML, например, в <head> или перед </body>:
+// <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+// <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCBrM43FbbmUGkb3hg1c7TvATWE5nG843Q",
+  authDomain: "qrmenu-8de3b.firebaseapp.com",
+  projectId: "qrmenu-8de3b",
+  storageBucket: "qrmenu-8de3b.firebasestorage.app",
+  messagingSenderId: "860100694312",
+  appId: "1:860100694312:web:060ffbc16f3561349b401d"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+// ------------------------------------------------------------
 
   // Функция для загрузки категорий
-  async function loadCategories() {
-    try {
-      const response = await fetch('http://localhost:3000/api/categories');
-      const categories = await response.json();
-      console.log('Загруженные категории:', categories);
-
-      const container = document.getElementById('categories-cards-container');
-      if (container) {
-        container.innerHTML = "";
-        categories.forEach(cat => {
-          const card = document.createElement('div');
-          card.classList.add('category-card');
-
-          const categoryKey = mapCategoryName(cat.name);
-          let subcategory = "";
-          if (categoryKey === "pizza") {
-            subcategory = "pizza30";
-          }
-          card.dataset.category = categoryKey;
-          if (subcategory) {
-            card.dataset.subcategory = subcategory;
-          }
-
-          card.style.backgroundImage = `url('${cat.imageUrl || categoryImages[categoryKey] || "images/default.jpg"}')`;
-          card.innerHTML = `<div class="overlay"><h3>${cat.name}</h3></div>`;
-          // При клике по карточке категории показываем блюда выбранной категории
-          card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
-          container.appendChild(card);
-        });
-        addCategoryCardListeners();
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки категорий:', error);
-    }
-  }
-
-  // Функция для загрузки блюд
-  async function loadDishes() {
-    try {
-      const response = await fetch('http://localhost:3000/api/menu');
-      const dishes = await response.json();
-      console.log('Загруженные блюда:', dishes);
-
-      const itemsList = document.querySelector('.items-list');
-      if (itemsList) {
-        itemsList.innerHTML = "";
-        dishes.forEach(dish => {
-          const item = document.createElement('div');
-          item.classList.add('menu-item');
-
-          const mappedCategory = dish.categoryName ? mapCategoryName(dish.categoryName) : "";
-          item.dataset.category = mappedCategory;
-          if (mappedCategory === "pizza") {
-            item.dataset.subcategory = "pizza30";
-          }
-
-          let imageUrl = dish.image_path;
-          if (imageUrl) {
-            imageUrl = imageUrl.replace("C:\\cafe_app\\bludim\\", "images/");
-          } else {
-            imageUrl = "images/default-dish.jpg";
-          }
-
-          // Выводим карточку блюда без описания – только изображение, название, цена, вес и количество,
-          // а кнопку «+» для добавления в заказы.
-          item.innerHTML = `
-            <img src="${imageUrl}" alt="${dish.name}">
-            <h3>${dish.name}</h3>
-            <p>Цена: ${dish.price} сом</p>
-            <p>Вес: ${dish.weight} г, Количество: ${dish.quantity} шт</p>
-            <button class="add-to-order">+</button>
-          `;
-          // Сохраняем описание и путь к изображению для модального окна (если нужно)
-          item.dataset.description = dish.description;
-          item.dataset.imageUrl = imageUrl;
-          item.dataset.id = dish.id;
-          itemsList.appendChild(item);
-
-          console.log(`Добавлено блюдо: ${dish.name} | categoryName: ${dish.categoryName} | mappedCategory: ${mappedCategory}`);
-        });
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки блюд:', error);
-    }
-  }
-
-  // Функция для показа блюд по выбранной категории
-  function showMenuItems(category, subcategory = "") {
-    // Скрываем info-card при переходе к блюдам
-    const infoCard = document.querySelector('.info-card');
-    if (infoCard) {
-      infoCard.style.display = "none";
-    }
-    // Скрываем контейнер категорий
-    document.getElementById('categories-cards-container').style.display = "none";
-    // Показываем раздел с блюдами
-    document.getElementById('menu-items').style.display = "block";
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
-      const itemCat = item.dataset.category;
-      const itemSub = item.dataset.subcategory || "";
-      item.style.display = (itemCat === category && (subcategory === "" || itemSub === subcategory))
-        ? "block"
-        : "none";
+  function subscribeCategories() {
+    db.collection('categories').onSnapshot((snapshot) => {
+      let categories = [];
+      snapshot.forEach(doc => {
+        let data = doc.data();
+        data.id = doc.id; // используем id документа
+        categories.push(data);
+      });
+      console.log('Категории из Firestore:', categories);
+      renderCategories(categories);
+    }, (error) => {
+      console.error('Ошибка подписки на категории:', error);
     });
   }
+  // Функция для отрисовки категорий
+  function renderCategories(categories) {
+    const container = document.getElementById('categories-cards-container');
+    if (container) {
+      container.innerHTML = "";
+      categories.forEach(cat => {
+        const card = document.createElement('div');
+        card.classList.add('category-card');
+
+        const categoryKey = mapCategoryName(cat.name);
+        let subcategory = "";
+        if (categoryKey === "pizza") {
+          subcategory = "pizza30";
+        }
+        card.dataset.category = categoryKey;
+        if (subcategory) {
+          card.dataset.subcategory = subcategory;
+        }
+
+        // Используем URL изображения из Firestore, если он есть, иначе локальные картинки
+        card.style.backgroundImage = `url('${cat.imageUrl || categoryImages[categoryKey] || "images/default.jpg"}')`;
+        card.innerHTML = `<div class="overlay"><h3>${cat.name}</h3></div>`;
+        card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
+        container.appendChild(card);
+      });
+      addCategoryCardListeners();
+    }
+  }
+  // Функция для подписки на коллекцию блюд в Firestore
+  function subscribeDishes() {
+    db.collection('menu').onSnapshot((snapshot) => {
+      let dishes = [];
+      snapshot.forEach(doc => {
+        let data = doc.data();
+        data.id = doc.id;
+        dishes.push(data);
+      });
+      console.log('Блюда из Firestore:', dishes);
+      renderDishes(dishes);
+    }, (error) => {
+      console.error('Ошибка подписки на блюда:', error);
+    });
+  }
+
+  // Функция для отрисовки блюд
+  function renderDishes(dishes) {
+    const itemsList = document.querySelector('.items-list');
+    if (itemsList) {
+      itemsList.innerHTML = "";
+      dishes.forEach(dish => {
+        const item = document.createElement('div');
+        item.classList.add('menu-item');
+
+        // Если в Firestore хранится либо categoryName, либо используйте category_id при необходимости
+        const mappedCategory = dish.categoryName ? mapCategoryName(dish.categoryName) : "";
+        item.dataset.category = mappedCategory;
+        if (mappedCategory === "pizza") {
+          item.dataset.subcategory = "pizza30";
+        }
+
+        let imageUrl = dish.image_path;
+        if (imageUrl) {
+          // Преобразуйте путь, если он содержит локальный путь
+          imageUrl = imageUrl.replace("C:\\cafe_app\\bludim\\", "images/");
+        } else {
+          imageUrl = "images/default-dish.jpg";
+        }
+
+        item.innerHTML = `
+          <img src="${imageUrl}" alt="${dish.name}">
+          <h3>${dish.name}</h3>
+          <p>Цена: ${dish.price} сом</p>
+          <p>Вес: ${dish.weight} г, Количество: ${dish.quantity} шт</p>
+          <button class="add-to-order">+</button>
+        `;
+        item.dataset.description = dish.description;
+        item.dataset.imageUrl = imageUrl;
+        item.dataset.id = dish.id;
+        itemsList.appendChild(item);
+
+        console.log(`Добавлено блюдо: ${dish.name} | mappedCategory: ${mappedCategory}`);
+      });
+    }
+  }
+
+// Функция для показа блюд по выбранной категории (без изменений)
+function showMenuItems(category, subcategory = "") {
+  const infoCard = document.querySelector('.info-card');
+  if (infoCard) {
+    infoCard.style.display = "none";
+  }
+  document.getElementById('categories-cards-container').style.display = "none";
+  document.getElementById('menu-items').style.display = "block";
+  const menuItems = document.querySelectorAll('.menu-item');
+  menuItems.forEach(item => {
+    const itemCat = item.dataset.category;
+    const itemSub = item.dataset.subcategory || "";
+    item.style.display = (itemCat === category && (subcategory === "" || itemSub === subcategory))
+      ? "block"
+      : "none";
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 
   // Функция для показа списка заказов в модальном окне
@@ -674,12 +737,16 @@ function addSearchFunctionality() {
 
 
   // Вызываем функции загрузки и обработчиков
-  await loadCategories();
-  await loadDishes();
+  subscribeCategories();
+  subscribeDishes();
   addInfoButtonListeners();
   addDishModalListeners();
   addOrderModalListeners();
   addAddToOrderListeners();
   addSearchFunctionality();
-  
+  addInfoButtonListeners();
+  addDishModalListeners();
+  addOrderModalListeners();
+  addAddToOrderListeners();
+  addSearchFunctionality();
 });
