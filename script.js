@@ -533,6 +533,25 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
+  function addOrderModalListeners() {
+  const orderModal = document.getElementById('order-modal');
+  const orderModalClose = document.getElementById('order-modal-close');
+  // Закрытие при клике по кнопке "X"
+  if (orderModalClose) {
+    orderModalClose.addEventListener('click', () => {
+      orderModal.style.display = "none";
+    });
+  }
+  // Закрытие при клике на область вне содержимого модального окна
+  orderModal.addEventListener('click', (event) => {
+    // Если кликнули по самому контейнеру модального окна, а не по его внутреннему содержимому
+    if (event.target === orderModal) {
+      orderModal.style.display = "none";
+    }
+  });
+}
+
+  
   // Вызываем функции подписок и обработчиков (однократно)
   subscribeCategories();
   subscribeDishes();
