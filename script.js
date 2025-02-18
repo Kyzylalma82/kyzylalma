@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   // ------------------ Инициализация Firebase ------------------
-  // Убедитесь, что в HTML подключены скрипты:
+  // В HTML должны быть подключены скрипты:
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   const firebaseConfig = {
@@ -58,19 +58,39 @@ document.addEventListener("DOMContentLoaded", async function() {
   const db = firebase.firestore();
   // ------------------------------------------------------------
 
-  // Функция для загрузки категорий
-  async function loadCategories() {
-    try {
-      const response = await fetch('http://localhost:3000/api/categories');
-      const categories = await response.json();
-      console.log('Загруженные категории:', categories);
+  // Функция для подписки на коллекцию категорий из Firestore
+  function subscribeCategories() {
+    db.collection('categories').onSnapshot((snapshot) => {
+      let categories = [];
+      snapshot.forEach(doc => {
+        let data = doc.data();
+        data.id = doc.id; // используем id документа
+        categories.push(data);
+      });
+      console.log('Категории из Firestore:', categories);
       renderCategories(categories);
-    } catch (error) {
-      console.error('Ошибка загрузки категорий:', error);
-    }
+    }, (error) => {
+      console.error('Ошибка подписки на категории:', error);
+    });
   }
 
-  // Функция для отрисовки категорий
+  // Функция для подписки на коллекцию блюд из Firestore
+  function subscribeDishes() {
+    db.collection('menu').onSnapshot((snapshot) => {
+      let dishes = [];
+      snapshot.forEach(doc => {
+        let data = doc.data();
+        data.id = doc.id;
+        dishes.push(data);
+      });
+      console.log('Блюда из Firestore:', dishes);
+      renderDishes(dishes);
+    }, (error) => {
+      console.error('Ошибка подписки на блюда:', error);
+    });
+  }
+
+  // Функция для отрисовки категорий и заполнения categoriesMap
   function renderCategories(categories) {
     const container = document.getElementById('categories-cards-container');
     if (container) {
@@ -96,22 +116,13 @@ document.addEventListener("DOMContentLoaded", async function() {
         card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
         container.appendChild(card);
       });
-      // Если дополнительных слушателей не нужны, можно добавить пустую функцию
-      function addCategoryCardListeners() {}
       addCategoryCardListeners();
     }
   }
 
-  // Функция для загрузки блюд
-  async function loadDishes() {
-    try {
-      const response = await fetch('http://localhost:3000/api/menu');
-      const dishes = await response.json();
-      console.log('Загруженные блюда:', dishes);
-      renderDishes(dishes);
-    } catch (error) {
-      console.error('Ошибка загрузки блюд:', error);
-    }
+  // Функция-заглушка для обработчиков карточек категорий (при необходимости расширьте её)
+  function addCategoryCardListeners() {
+    // Дополнительная логика для карточек категорий, если нужна.
   }
 
   // Функция для отрисовки блюд
@@ -218,7 +229,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     updateDishCardsUI();
   }
 
-  // Функция для обновления UI карточек блюд (при изменении заказа)
+  // Функция для обновления UI карточек блюд (если изменился заказ)
   function updateDishCardsUI() {
     const dishItems = document.querySelectorAll('.menu-item');
     dishItems.forEach(item => {
@@ -372,7 +383,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
+  // Функция для добавления обработчиков для всех кнопок "add-to-order" внутри карточек блюд
   function addAddToOrderListeners() {
     const addButtons = document.querySelectorAll('.menu-item .add-to-order');
     addButtons.forEach(btn => {
@@ -600,7 +611,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         e.stopPropagation();
         const item = btn.closest('.menu-item');
         if (item.querySelector('.quantity-controls')) return;
-        
+
         const dish = {
           id: item.dataset.id || item.querySelector('h3').textContent,
           name: item.querySelector('h3').textContent,
@@ -612,11 +623,11 @@ document.addEventListener("DOMContentLoaded", async function() {
           description: item.dataset.description || "",
           imageUrl: item.dataset.imageUrl
         };
-        
+
         addToOrder(dish);
         updateOrdersCount();
         btn.remove();
-        
+
         const quantityControls = document.createElement('div');
         quantityControls.classList.add('quantity-controls');
         quantityControls.innerHTML = `
@@ -625,11 +636,11 @@ document.addEventListener("DOMContentLoaded", async function() {
           <button class="increment">+</button>
         `;
         item.appendChild(quantityControls);
-        
+
         const incrementBtn = quantityControls.querySelector('.increment');
         const decrementBtn = quantityControls.querySelector('.decrement');
         const quantitySpan = quantityControls.querySelector('.quantity');
-        
+
         incrementBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           const existing = orders.find(o => o.id === dish.id);
@@ -639,7 +650,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             updateOrdersCount();
           }
         });
-        
+
         decrementBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           const existing = orders.find(o => o.id === dish.id);
@@ -667,7 +678,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   function addSearchFunctionality() {
     const searchInput = document.querySelector('.search-bar input');
     if (!searchInput) return;
-
+  
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.trim().toLowerCase();
       if (query !== "") {
@@ -682,45 +693,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция-заглушка для addInfoButtonListeners (определите по необходимости)
-  function addInfoButtonListeners() {
-    // Например, если у вас есть элементы с классом .info-btn, можно привязать обработчики.
-    const infoButtons = document.querySelectorAll('.info-btn');
-    infoButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        infoButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        if (btn.dataset.action === "categories") {
-          document.querySelector('.banner').style.display = "block";
-          document.querySelector('.info-card').style.display = "block";
-          document.getElementById('categories-cards-container').style.display = "flex";
-          document.getElementById('menu-items').style.display = "none";
-          window.scrollTo(0, 0);
-        } else {
-          document.querySelector('.info-card').style.display = "none";
-          if (btn.dataset.category === "orders") {
-            showOrdersModal();
-          } else {
-            document.getElementById('categories-cards-container').style.display = "none";
-            document.getElementById('menu-items').style.display = "block";
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(item => {
-              item.style.display = (item.dataset.category === btn.dataset.category) ? "block" : "none";
-            });
-          }
-        }
-      });
-    });
-  }
-
-  // Вызываем функции загрузки и обработчиков (однократно)
-subscribeCategories();
-subscribeDishes();
-addInfoButtonListeners();
-addDishModalListeners();
-addOrderModalListeners();
-addAddToOrderListeners();
-addSearchFunctionality();
-
+  // Вместо вызова fetch, используем Firebase-подписки:
+  subscribeCategories();
+  subscribeDishes();
+  addInfoButtonListeners();
+  addDishModalListeners();
+  addOrderModalListeners();
+  addAddToOrderListeners();
+  addSearchFunctionality();
 });
