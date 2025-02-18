@@ -643,6 +643,7 @@ function updateDishCardsUI() {
 
 
 
+// Функция для создания кнопки добавления в заказ
 function createAddToOrderButton(item) {
   const btn = document.createElement('button');
   btn.classList.add('add-to-order');
@@ -654,6 +655,7 @@ function createAddToOrderButton(item) {
   return btn;
 }
 
+// Функция для обработки клика по кнопке "add-to-order"
 function handleAddToOrderClick(item, addBtn) {
   // Если уже существует панель управления, ничего не делаем
   if (item.querySelector('.quantity-controls')) return;
@@ -677,8 +679,8 @@ function handleAddToOrderClick(item, addBtn) {
   
   // Удаляем кнопку "+"
   addBtn.remove();
-
-  // Создаем панель управления количеством, как в модальном окне
+  
+  // Создаем панель управления количеством
   const quantityControls = document.createElement('div');
   quantityControls.classList.add('quantity-controls');
   quantityControls.innerHTML = `
@@ -692,7 +694,7 @@ function handleAddToOrderClick(item, addBtn) {
   const decrementBtn = quantityControls.querySelector('.decrement');
   const quantitySpan = quantityControls.querySelector('.quantity');
 
-  // Обработчик для кнопки "+" в панели управления
+  // Обработчик для кнопки "+"
   incrementBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const existing = orders.find(o => o.id === dish.id);
@@ -703,7 +705,7 @@ function handleAddToOrderClick(item, addBtn) {
     }
   });
 
-  // Обработчик для кнопки "-" в панели управления
+  // Обработчик для кнопки "-"
   decrementBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const existing = orders.find(o => o.id === dish.id);
@@ -712,8 +714,8 @@ function handleAddToOrderClick(item, addBtn) {
         existing.quantity -= 1;
         quantitySpan.textContent = existing.quantity;
       } else {
-        // Если количество становится 0 – удаляем блюдо из заказов и панель управления,
-        // затем возвращаем кнопку "+"
+        // Если количество станет 0, удаляем блюдо и панель управления,
+        // затем добавляем кнопку "+"
         orders = orders.filter(o => o.id !== dish.id);
         quantityControls.remove();
         const newAddBtn = createAddToOrderButton(item);
@@ -723,6 +725,84 @@ function handleAddToOrderClick(item, addBtn) {
     }
   });
 }
+
+// Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
+function addAddToOrderListeners() {
+  const addButtons = document.querySelectorAll('.menu-item .add-to-order');
+  addButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const item = btn.closest('.menu-item');
+      
+      // Если уже есть панель управления, ничего не делаем
+      if (item.querySelector('.quantity-controls')) return;
+      
+      // Собираем данные блюда
+      const dish = {
+        id: item.dataset.id || item.querySelector('h3').textContent,
+        name: item.querySelector('h3').textContent,
+        price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
+        weight: item.querySelector('p:nth-of-type(2)') 
+                ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
+                : "",
+        quantity: 1,
+        description: item.dataset.description || "",
+        imageUrl: item.dataset.imageUrl
+      };
+      
+      // Добавляем блюдо в заказы и обновляем счётчик
+      addToOrder(dish);
+      updateOrdersCount();
+      
+      // Удаляем кнопку "add-to-order"
+      btn.remove();
+      
+      // Создаем панель управления количеством
+      const quantityControls = document.createElement('div');
+      quantityControls.classList.add('quantity-controls');
+      quantityControls.innerHTML = `
+        <button class="decrement">-</button>
+        <span class="quantity">1</span>
+        <button class="increment">+</button>
+      `;
+      item.appendChild(quantityControls);
+      
+      const incrementBtn = quantityControls.querySelector('.increment');
+      const decrementBtn = quantityControls.querySelector('.decrement');
+      const quantitySpan = quantityControls.querySelector('.quantity');
+      
+      // Обработчик для кнопки "+"
+      incrementBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const existing = orders.find(o => o.id === dish.id);
+        if (existing) {
+          existing.quantity += 1;
+          quantitySpan.textContent = existing.quantity;
+          updateOrdersCount();
+        }
+      });
+      
+      // Обработчик для кнопки "-"
+      decrementBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const existing = orders.find(o => o.id === dish.id);
+        if (existing) {
+          if (existing.quantity > 1) {
+            existing.quantity -= 1;
+            quantitySpan.textContent = existing.quantity;
+          } else {
+            orders = orders.filter(o => o.id !== dish.id);
+            quantityControls.remove();
+            const newAddBtn = createAddToOrderButton(item);
+            item.appendChild(newAddBtn);
+          }
+          updateOrdersCount();
+        }
+      });
+    });
+  });
+}
+
 
 function addSearchFunctionality() {
   const searchInput = document.querySelector('.search-bar input');
