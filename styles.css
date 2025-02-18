@@ -106,19 +106,19 @@ body {
   padding: 0 20px 80px; /* нижний отступ, чтобы контент не закрывался таб-баром */
 }
 
-.info-buttons {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 560px;  /* фиксированная ширина, как у контейнера */
-  z-index: 100;
-  background-color: #2A2A2A;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px;
-  border-radius: 10px 10px 0 0;
+/* Для экранов меньше 500px – уменьшаем размеры таб-бара */
+@media (max-width: 500px) {
+  .info-buttons {
+    width: 100%; /* Используем всю ширину экрана */
+    flex-wrap: wrap; /* Разрешаем перенос кнопок */
+    justify-content: space-around;
+  }
+  .info-btn {
+    flex: 1 1 45%; /* Каждая кнопка займет примерно 45% ширины */
+    margin-bottom: 10px;
+  }
 }
+
 
 
 
@@ -228,28 +228,24 @@ body {
 
 
 .items-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 15px;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+
+/* Для экранов больше 600px – карточки занимают 45% (2 колонки) */
 .menu-item {
   width: 45%;
-  background-color: #2A2A2A;
-  border-radius: 10px;
-  overflow: hidden;
-  text-align: center;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  display: none;
 }
 
-.menu-item img {
-  width: 100%;
-  height: auto; /* высота автоматически подстраивается */
-  object-fit: cover; /* можно убрать, если нужно видеть всю картинку */
+/* Для экранов меньше 600px – карточки занимают 90% (1 колонка) */
+@media (max-width: 600px) {
+  .menu-item {
+    width: 90%;
+  }
 }
+
 
 
 .menu-item h3 {
@@ -296,33 +292,7 @@ body {
   background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
 }
 
-/* Контент модального окна */
-.modal-content {
-  background-color: #fefefe;
-  margin: 10% auto; /* Центрирование, 10% от верха */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 10px;
-  color: #000;
-}
 
-/* Кнопка закрытия модального окна */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
 /* Стили для модального окна */
 /* Стили для модального окна заказов */
 /* Стили для модального окна заказов */
@@ -338,16 +308,21 @@ body {
   background-color: rgba(0,0,0,0.8);
 }
 
+/* Ограничение для контента модального окна */
 .modal-content {
-  background-color: #2A2A2A;
-  margin: 10% auto;
-  padding: 20px;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 10px;
-  color: #fff;
-  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto; /* чтобы, если контент слишком большой, появлялась прокрутка */
 }
+
+/* Ограничение для изображений внутри модального окна */
+.modal-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 
 .close {
   color: #aaa;
