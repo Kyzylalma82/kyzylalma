@@ -147,10 +147,10 @@ document.addEventListener("DOMContentLoaded", async function() {
         item.innerHTML = `
           <img src="${imageUrl}" alt="${dish.name}">
           <h3>${dish.name}</h3>
-          <p>Цена: ${dish.price} сом</p>
-          <p>Вес: ${dish.weight} г, Количество: ${dish.quantity} шт</p>
+          <p>Цена: ${dish.price} сом | Вес: ${dish.weight} г |  ${dish.quantity} шт</p>
           <button class="add-to-order">+</button>
         `;
+
         item.dataset.description = dish.description;
         item.dataset.imageUrl = imageUrl;
         item.dataset.id = dish.id;
