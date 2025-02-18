@@ -39,6 +39,64 @@ document.addEventListener("DOMContentLoaded", async function() {
     return categoriesMap[category_id] || "unknown";
   }
 
+  // ... остальной ваш код (подписки, рендер, обработчики и т.д.) ...
+
+  // Вставьте код для модального окна официанта здесь, перед закрывающей скобкой.
+  // Например:
+  const waiterClose = document.getElementById('waiter-modal-close');
+  if (waiterClose) {
+    waiterClose.addEventListener('click', function() {
+      document.getElementById('waiter-modal').style.display = 'none';
+    });
+  }
+  
+  const tableButtons = document.querySelectorAll('.table-button');
+  let selectedTable = null;
+  tableButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      tableButtons.forEach(btn => btn.classList.remove('selected'));
+      button.classList.add('selected');
+      selectedTable = button.dataset.table;
+      document.getElementById('call-waiter').disabled = false;
+    });
+  });
+  
+  const callWaiterBtn = document.getElementById('call-waiter');
+  if (callWaiterBtn) {
+    callWaiterBtn.addEventListener('click', function() {
+      if (!selectedTable) return;
+      callWaiter(selectedTable);
+    });
+  }
+  
+  function callWaiter(tableNumber) {
+    db.collection('calls').add({
+      table: tableNumber,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      alert("Официант вызван для стола " + tableNumber);
+      document.getElementById('waiter-modal').style.display = 'none';
+      tableButtons.forEach(btn => btn.classList.remove('selected'));
+      selectedTable = null;
+      document.getElementById('call-waiter').disabled = true;
+    })
+    .catch(error => {
+      console.error("Ошибка вызова официанта:", error);
+    });
+  }
+  
+  window.addEventListener('click', function(event) {
+    const waiterModal = document.getElementById('waiter-modal');
+    if (event.target === waiterModal) {
+      waiterModal.style.display = 'none';
+    }
+  });
+
+  // Конец обработчика DOMContentLoaded
+
+
+
   // ------------------ Инициализация Firebase ------------------
   // Убедитесь, что в HTML подключены скрипты:
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -352,6 +410,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
+
+
+
+
+
+
+
   // Функция для показа модального окна заказов
 function showOrdersModal() {
   const orderModal = document.getElementById('order-modal');
@@ -385,16 +450,27 @@ function showOrdersModal() {
     }, 0);
 
     html += `<div class="order-subtotal" style="margin-top: 15px;">Подитог: ${subtotal.toFixed(2)} сом</div>`;
-    // Выводим сообщение, что обслуживание не включено
     html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
     html += `<div class="order-final" style="margin-top: 10px; font-weight: bold;">Итог: ${subtotal.toFixed(2)} сом</div>`;
+
+    // Добавляем кнопку для вызова официанта
+    html += `<button id="order-call-waiter" style="margin-top:15px; padding: 10px 20px; font-size: 1rem; background-color: #FFA000; border: none; border-radius: 8px; cursor: pointer;">Вызвать официанта</button>`;
   }
 
   orderDetails.innerHTML = html;
   orderModal.style.display = "block";
   addOrderActionListeners();
+
+  // Назначаем обработчик на кнопку "Вызвать официанта"
+  const orderCallWaiterBtn = document.getElementById('order-call-waiter');
+  if (orderCallWaiterBtn) {
+    orderCallWaiterBtn.addEventListener('click', function() {
+      document.getElementById('waiter-modal').style.display = 'block';
+    });
+  }
 }
 
+  
 
 
 
