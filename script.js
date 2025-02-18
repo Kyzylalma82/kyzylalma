@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   // ------------------ Инициализация Firebase ------------------
-  // Убедитесь, что в HTML подключены скрипты:
+  // Подключите в HTML скрипты:
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   const firebaseConfig = {
@@ -58,31 +58,25 @@ document.addEventListener("DOMContentLoaded", async function() {
   const db = firebase.firestore();
   // ------------------------------------------------------------
 
-  // Функция для загрузки категорий
-  function subscribeCategories() {
-    db.collection('categories').onSnapshot((snapshot) => {
-      let categories = [];
-      snapshot.forEach(doc => {
-        let data = doc.data();
-        data.id = doc.id; // используем id документа
-        categories.push(data);
-      });
-      console.log('Категории из Firestore:', categories);
+  // Функция для загрузки категорий через fetch (старый способ, оставляем для локальной версии)
+  async function loadCategories() {
+    try {
+      const response = await fetch('http://localhost:3000/api/categories');
+      const categories = await response.json();
+      console.log('Загруженные категории:', categories);
       renderCategories(categories);
-    }, (error) => {
-      console.error('Ошибка подписки на категории:', error);
-    });
+    } catch (error) {
+      console.error('Ошибка загрузки категорий:', error);
+    }
   }
 
-  // Функция для отрисовки категорий
+  // Функция для отрисовки категорий и заполнения categoriesMap
   function renderCategories(categories) {
     const container = document.getElementById('categories-cards-container');
     if (container) {
       container.innerHTML = "";
       categories.forEach(cat => {
-        // Сохраняем маппинг: id -> имя
-        categoriesMap[cat.id] = cat.name;
-        
+        categoriesMap[cat.id] = cat.name;  // заполняем маппинг
         const card = document.createElement('div');
         card.classList.add('category-card');
 
@@ -101,26 +95,22 @@ document.addEventListener("DOMContentLoaded", async function() {
         card.addEventListener('click', () => showMenuItems(categoryKey, subcategory));
         container.appendChild(card);
       });
-      // Если дополнительные обработчики для карточек не нужны, можно определить пустую функцию:
+      // Если не нужна дополнительная логика, определяем пустую функцию
       function addCategoryCardListeners() {}
       addCategoryCardListeners();
     }
   }
 
-  // Функция для подписки на коллекцию блюд в Firestore
-  function subscribeDishes() {
-    db.collection('menu').onSnapshot((snapshot) => {
-      let dishes = [];
-      snapshot.forEach(doc => {
-        let data = doc.data();
-        data.id = doc.id;
-        dishes.push(data);
-      });
-      console.log('Блюда из Firestore:', dishes);
+  // Функция для загрузки блюд через fetch
+  async function loadDishes() {
+    try {
+      const response = await fetch('http://localhost:3000/api/menu');
+      const dishes = await response.json();
+      console.log('Загруженные блюда:', dishes);
       renderDishes(dishes);
-    }, (error) => {
-      console.error('Ошибка подписки на блюда:', error);
-    });
+    } catch (error) {
+      console.error('Ошибка загрузки блюд:', error);
+    }
   }
 
   // Функция для отрисовки блюд
@@ -132,8 +122,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         const item = document.createElement('div');
         item.classList.add('menu-item');
 
-        // Если в блюде есть поле categoryName, используем его,
-        // иначе получаем название через category_id из categoriesMap
+        // Если есть categoryName, используем его, иначе через category_id
         const mappedCategory = dish.categoryName 
             ? mapCategoryName(dish.categoryName) 
             : mapCategoryName(getCategoryNameFromId(dish.category_id));
@@ -169,9 +158,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   // Функция для показа блюд по выбранной категории
   function showMenuItems(category, subcategory = "") {
     const infoCard = document.querySelector('.info-card');
-    if (infoCard) {
-      infoCard.style.display = "none";
-    }
+    if (infoCard) infoCard.style.display = "none";
     document.getElementById('categories-cards-container').style.display = "none";
     document.getElementById('menu-items').style.display = "block";
     const menuItems = document.querySelectorAll('.menu-item');
@@ -215,7 +202,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     addOrderActionListeners();
   }
 
-  // Функция для обновления счётчика заказов на кнопке "Заказы"
+  // Функция для обновления счётчика заказов
   function updateOrdersCount() {
     const ordersButton = document.querySelector('.info-btn[data-category="orders"]');
     if (ordersButton) {
@@ -231,6 +218,31 @@ document.addEventListener("DOMContentLoaded", async function() {
     updateDishCardsUI();
   }
 
+  // Функция для обновления UI карточек блюд (если изменился заказ)
+  function updateDishCardsUI() {
+    const dishItems = document.querySelectorAll('.menu-item');
+    dishItems.forEach(item => {
+      const dishId = item.dataset.id;
+      const existing = orders.find(o => o.id == dishId);
+      if (!existing) {
+        const qc = item.querySelector('.quantity-controls');
+        if (qc) qc.remove();
+        if (!item.querySelector('.add-to-order')) {
+          const newAddBtn = createAddToOrderButton(item);
+          item.appendChild(newAddBtn);
+        }
+      } else {
+        const qc = item.querySelector('.quantity-controls');
+        if (qc) {
+          const quantitySpan = qc.querySelector('.quantity');
+          if (quantitySpan) {
+            quantitySpan.textContent = existing.quantity;
+          }
+        }
+      }
+    });
+  }
+
   // Функция для добавления блюда в заказы
   function addToOrder(dish) {
     const existing = orders.find(o => o.id === dish.id);
@@ -243,7 +255,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     console.log("Заказы:", orders);
   }
 
-  // Функция для добавления обработчиков действий внутри модального окна заказов
+  // Функция для добавления обработчиков в модальном окне заказов
   function addOrderActionListeners() {
     const removeButtons = document.querySelectorAll('.remove-order');
     const incrementButtons = document.querySelectorAll('.increment-order');
@@ -281,32 +293,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   }
 
-  // Функция для обновления UI карточек блюд в категории
-  function updateDishCardsUI() {
-    const dishItems = document.querySelectorAll('.menu-item');
-    dishItems.forEach(item => {
-      const dishId = item.dataset.id;
-      const existing = orders.find(o => o.id == dishId);
-      if (!existing) {
-        const qc = item.querySelector('.quantity-controls');
-        if (qc) qc.remove();
-        if (!item.querySelector('.add-to-order')) {
-          const newAddBtn = createAddToOrderButton(item);
-          item.appendChild(newAddBtn);
-        }
-      } else {
-        const qc = item.querySelector('.quantity-controls');
-        if (qc) {
-          const quantitySpan = qc.querySelector('.quantity');
-          if (quantitySpan) {
-            quantitySpan.textContent = existing.quantity;
-          }
-        }
-      }
-    });
-  }
-
-  // Функция для создания кнопки добавления в заказ
+  // Функция для создания кнопки "add-to-order"
   function createAddToOrderButton(item) {
     const btn = document.createElement('button');
     btn.classList.add('add-to-order');
@@ -328,7 +315,7 @@ document.addEventListener("DOMContentLoaded", async function() {
       id: item.dataset.id || item.querySelector('h3').textContent,
       name: item.querySelector('h3').textContent,
       price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-      weight: item.querySelector('p:nth-of-type(2)') 
+      weight: item.querySelector('p:nth-of-type(2)')
                 ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
                 : "",
       quantity: 1,
@@ -376,17 +363,13 @@ document.addEventListener("DOMContentLoaded", async function() {
           quantityControls.remove();
           const newAddBtn = createAddToOrderButton(item);
           item.appendChild(newAddBtn);
-          newAddBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            handleAddToOrderClick(item, newAddBtn);
-          });
         }
         updateOrdersCount();
       }
     });
   }
 
-  // Функция для добавления обработчиков для всех кнопок "add-to-order" внутри карточек блюд
+  // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
   function addAddToOrderListeners() {
     const addButtons = document.querySelectorAll('.menu-item .add-to-order');
     addButtons.forEach(btn => {
@@ -399,7 +382,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           id: item.dataset.id || item.querySelector('h3').textContent,
           name: item.querySelector('h3').textContent,
           price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-          weight: item.querySelector('p:nth-of-type(2)') 
+          weight: item.querySelector('p:nth-of-type(2)')
                   ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
                   : "",
           quantity: 1,
@@ -446,10 +429,6 @@ document.addEventListener("DOMContentLoaded", async function() {
               quantityControls.remove();
               const newAddBtn = createAddToOrderButton(item);
               item.appendChild(newAddBtn);
-              newAddBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                handleAddToOrderClick(item, newAddBtn);
-              });
             }
             updateOrdersCount();
           }
@@ -461,14 +440,13 @@ document.addEventListener("DOMContentLoaded", async function() {
   function addSearchFunctionality() {
     const searchInput = document.querySelector('.search-bar input');
     if (!searchInput) return;
-  
+
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.trim().toLowerCase();
       if (query !== "") {
         document.getElementById('categories-cards-container').style.display = "none";
         document.getElementById('menu-items').style.display = "block";
       }
-  
       const menuItems = document.querySelectorAll('.menu-item');
       menuItems.forEach(item => {
         const dishName = item.querySelector('h3') ? item.querySelector('h3').textContent.toLowerCase() : "";
@@ -476,10 +454,10 @@ document.addEventListener("DOMContentLoaded", async function() {
       });
     });
   }
-  
-  // Вызываем функции загрузки и обработчиков (однократно)
-  subscribeCategories();
-  subscribeDishes();
+
+  // Вызываем функции загрузки и обработчиков однократно
+  await loadCategories();
+  await loadDishes();
   addInfoButtonListeners();
   addDishModalListeners();
   addOrderModalListeners();
