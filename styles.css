@@ -65,17 +65,13 @@ body {
 
 /* Фиксируем контейнер для поиска вверху экрана */
 .search-bar {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
   width: 100%;
-  max-width: 560px;
-  z-index: 150;
-  background-color: #1C1C1C;
   padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  /* Если больше не нужно фиксировать, уберите position: fixed */
+  /* position: fixed; */
+  /* Дополнительное оформление, если нужно */
 }
+
 
 /* Добавляем верхний отступ основному контейнеру, чтобы поиск не перекрывал контент */
 .container {
@@ -415,7 +411,7 @@ body {
   color: #000;
 }
 
-/* Стили для кнопки "+" внутри модального окна блюда (для добавления в заказ) */
+/* Стили для кнопки "+" внутри модального окна блюда (для добавления в заказ)    */
 .add-to-order {
   background-color: #FFA000;
   border: none;
@@ -446,16 +442,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  margin-left: 10px;
+  margin-top: 10px;
 }
-
 .quantity-controls button {
   background-color: #FFA000;
   border: none;
-  border-radius: 5px;
-  width: 30px;
-  height: 30px;
-  font-size: 1rem;
+  border-radius: 50%; /* тот же скругленный вид */
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
   color: #000;
   cursor: pointer;
   transition: background 0.3s;
