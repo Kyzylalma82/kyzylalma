@@ -127,11 +127,12 @@ const db = firebase.firestore();
 
         let imageUrl = dish.image_path;
         if (imageUrl) {
-          // Преобразуйте путь, если он содержит локальный путь
-          imageUrl = imageUrl.replace("C:\\cafe_app\\bludim\\", "images/");
+          // Заменяем локальный путь на URL, по которому размещены изображения
+          imageUrl = imageUrl.replace("C:\\qr-menu\\", "https://kyzylalma82.github.io/kyzylalma/");
         } else {
-          imageUrl = "images/default-dish.jpg";
+          imageUrl = "https://kyzylalma82.github.io/kyzylalma/images/default-dish.jpg";
         }
+
 
         item.innerHTML = `
           <img src="${imageUrl}" alt="${dish.name}">
