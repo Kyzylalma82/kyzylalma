@@ -145,12 +145,12 @@ document.addEventListener("DOMContentLoaded", async function() {
         }
 
         item.innerHTML = `
-          <img src="${imageUrl}" alt="${dish.name}">
-          <h3>${dish.name}</h3>
-          <p>Цена: ${dish.price} сом | Вес: ${dish.weight} г |  ${dish.quantity} шт</p>
-          <button class="add-to-order">+</button>
-        `;
-
+        <img src="${imageUrl}" alt="${dish.name}">
+        <h3>${dish.name}</h3>
+        <p>Цена: ${dish.price} сом | Вес: ${dish.weight}  |  ${dish.quantity} шт</p>
+        <button class="add-to-order">+</button>
+      `;
+      
         item.dataset.description = dish.description;
         item.dataset.imageUrl = imageUrl;
         item.dataset.id = dish.id;
@@ -173,109 +173,95 @@ document.addEventListener("DOMContentLoaded", async function() {
       return;
     }
   
-    // Делегирование события клика для всех блюд
+    // Делегирование клика на контейнере блюд
     itemsList.addEventListener("click", function(e) {
-      // Если клик по кнопке добавления (класс "add-to-order"), не обрабатываем (она имеет свою логику)
+      // Если кликнули по кнопке добавления, не открываем модальное окно
       if (e.target.classList.contains("add-to-order")) return;
   
-      // Находим карточку блюда
       const item = e.target.closest(".menu-item");
       if (!item) return;
   
+      // Получаем данные блюда
       const dishName = item.querySelector("h3") ? item.querySelector("h3").textContent : "";
       const dishDescription = item.dataset.description || "";
       const dishPrice = item.querySelector("p") ? item.querySelector("p").textContent : "";
       const dishImageHTML = item.querySelector("img") ? item.querySelector("img").outerHTML : "";
   
-      // Формируем содержимое модального окна
-      modalContent.innerHTML = `
-        <h2>${dishName}</h2>
-        ${dishImageHTML}
-        <p>${dishDescription}</p>
-        <p>${dishPrice}</p>
-        <button class="add-to-order">+</button>
-      `;
+      // Подготовка объекта блюда (используем id из data, если есть)
+      const dish = {
+        id: item.dataset.id || dishName,
+        name: dishName,
+        price: dishPrice.replace("Цена: ", "").replace(" сом", ""),
+        weight: item.querySelector('p:nth-of-type(2)') 
+                  ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
+                  : "",
+        quantity: 1,
+        description: dishDescription,
+        imageUrl: item.dataset.imageUrl
+      };
+  
+      // Проверяем, существует ли заказ для этого блюда
+      const existingOrder = orders.find(o => o.id === dish.id);
+  
+      // Формируем содержимое модального окна:
+      // Если уже добавлено, показываем панель управления с текущим количеством,
+      // иначе – показываем кнопку "add-to-order"
+      if (existingOrder) {
+        modalContent.innerHTML = `
+          <h2>${dishName}</h2>
+          ${dishImageHTML}
+          <p>${dishDescription}</p>
+          <p>${dishPrice}</p>
+          <div class="modal-controls">
+            <div id="modal-qty" class="quantity-controls">
+              <button class="decrement">-</button>
+              <span class="quantity">${existingOrder.quantity}</span>
+              <button class="increment">+</button>
+            </div>
+          </div>
+        `;
+      } else {
+        modalContent.innerHTML = `
+          <h2>${dishName}</h2>
+          ${dishImageHTML}
+          <p>${dishDescription}</p>
+          <p>${dishPrice}</p>
+          <div class="modal-controls">
+            <button id="modal-add" class="add-to-order">+</button>
+            <div id="modal-qty" class="quantity-controls" style="display: none;">
+              <button class="decrement">-</button>
+              <span class="quantity">1</span>
+              <button class="increment">+</button>
+            </div>
+          </div>
+        `;
+      }
+  
       modal.style.display = "block";
   
-      // Обработчик для кнопки "+" в модальном окне
-      const modalAddButton = modalContent.querySelector(".add-to-order");
+      // Назначаем обработчик для кнопки "add-to-order", если она присутствует
+      const modalAddButton = modalContent.querySelector("#modal-add");
       if (modalAddButton) {
         modalAddButton.addEventListener("click", function(e) {
           e.stopPropagation();
-          // Если панель управления уже добавлена, выходим
-          if (modalContent.querySelector(".quantity-controls")) return;
+          // При клике скрываем кнопку и показываем панель
+          modalAddButton.style.display = "none";
+          const modalQty = modalContent.querySelector("#modal-qty");
+          modalQty.style.display = "inline-flex";
   
-          // Считываем данные блюда из карточки
-          const dish = {
-            id: item.dataset.id || dishName,
-            name: dishName,
-            price: dishPrice.replace("Цена: ", "").replace(" сом", ""),
-            weight: item.querySelector('p:nth-of-type(2)') 
-                      ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
-                      : "",
-            quantity: 1,
-            description: dishDescription,
-            imageUrl: item.dataset.imageUrl
-          };
-  
-          // Добавляем блюдо в заказ и обновляем счётчик
+          // Добавляем блюдо в заказ
           addToOrder(dish);
           updateOrdersCount();
   
-          // Удаляем кнопку "+"
-          modalAddButton.remove();
-  
-          // Создаем панель управления количеством
-          const quantityControls = document.createElement("div");
-          quantityControls.classList.add("quantity-controls");
-          quantityControls.innerHTML = `
-            <button class="decrement">-</button>
-            <span class="quantity">1</span>
-            <button class="increment">+</button>
-          `;
-          modalContent.appendChild(quantityControls);
-  
-          const incrementBtn = quantityControls.querySelector(".increment");
-          const decrementBtn = quantityControls.querySelector(".decrement");
-          const quantitySpan = quantityControls.querySelector(".quantity");
-  
-          // Обработчик для кнопки "+"
-          incrementBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const existing = orders.find(o => o.id === dish.id);
-            if (existing) {
-              existing.quantity += 1;
-              quantitySpan.textContent = existing.quantity;
-              updateOrdersCount();
-            }
-          });
-  
-          // Обработчик для кнопки "–"
-          decrementBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const existing = orders.find(o => o.id === dish.id);
-            if (existing) {
-              if (existing.quantity > 1) {
-                existing.quantity -= 1;
-                quantitySpan.textContent = existing.quantity;
-              } else {
-                orders = orders.filter(o => o.id !== dish.id);
-                quantityControls.remove();
-                // Восстанавливаем кнопку "+"
-                const newAddBtn = document.createElement("button");
-                newAddBtn.classList.add("add-to-order");
-                newAddBtn.textContent = "+";
-                modalContent.appendChild(newAddBtn);
-                newAddBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  // Повторно вызываем обработчик для панели
-                  handleAddToOrderClick(item, newAddBtn);
-                });
-              }
-              updateOrdersCount();
-            }
-          });
+          // Настраиваем обработчики для кнопок в панели управления
+          setModalQuantityHandlers(dish, modalContent);
         });
+      } else {
+        // Если панель уже показывается (заказ существует), назначаем обработчики для кнопок
+        const modalQty = modalContent.querySelector("#modal-qty");
+        if (modalQty) {
+          setModalQuantityHandlers(dish, modalContent);
+        }
       }
     });
   
@@ -291,6 +277,60 @@ document.addEventListener("DOMContentLoaded", async function() {
       }
     });
   }
+  
+  // Вспомогательная функция для назначения обработчиков для кнопок панели управления в модальном окне
+  function setModalQuantityHandlers(dish, modalContent) {
+    const modalQty = modalContent.querySelector("#modal-qty");
+    const incrementBtn = modalQty.querySelector(".increment");
+    const decrementBtn = modalQty.querySelector(".decrement");
+    const quantitySpan = modalQty.querySelector(".quantity");
+  
+    incrementBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const existing = orders.find(o => o.id === dish.id);
+      if (existing) {
+        existing.quantity += 1;
+        quantitySpan.textContent = existing.quantity;
+        updateOrdersCount();
+      }
+    });
+  
+    decrementBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const existing = orders.find(o => o.id === dish.id);
+      if (existing) {
+        if (existing.quantity > 1) {
+          existing.quantity -= 1;
+          quantitySpan.textContent = existing.quantity;
+        } else {
+          // Если количество становится 0, удаляем блюдо из заказа и восстанавливаем кнопку "+"
+          orders = orders.filter(o => o.id !== dish.id);
+          modalQty.style.display = "none";
+          const modalAddButton = modalContent.querySelector("#modal-add");
+          if (modalAddButton) {
+            modalAddButton.style.display = "inline-block";
+          } else {
+            // Если кнопка не была создана ранее, создаем её заново
+            const newAddBtn = document.createElement("button");
+            newAddBtn.id = "modal-add";
+            newAddBtn.classList.add("add-to-order");
+            newAddBtn.textContent = "+";
+            modalContent.querySelector(".modal-controls").appendChild(newAddBtn);
+            newAddBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              newAddBtn.style.display = "none";
+              modalQty.style.display = "inline-flex";
+              addToOrder(dish);
+              updateOrdersCount();
+              setModalQuantityHandlers(dish, modalContent);
+            });
+          }
+        }
+        updateOrdersCount();
+      }
+    });
+  }
+  
   
   
   
@@ -469,25 +509,23 @@ document.addEventListener("DOMContentLoaded", async function() {
 
   // Функция для обработки клика по кнопке "add-to-order"
   function handleAddToOrderClick(item, addBtn) {
-    console.log("handleAddToOrderClick вызвана для элемента:", item);
     if (item.querySelector('.quantity-controls')) return;
-
+  
     const dish = {
       id: item.dataset.id || item.querySelector('h3').textContent,
       name: item.querySelector('h3').textContent,
       price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-      weight: item.querySelector('p:nth-of-type(2)')
+      weight: item.querySelector('p:nth-of-type(2)') 
                 ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
                 : "",
       quantity: 1,
       description: item.dataset.description || "",
       imageUrl: item.dataset.imageUrl
     };
-
+  
     addToOrder(dish);
     updateOrdersCount();
-    addBtn.remove();
-
+  
     const quantityControls = document.createElement('div');
     quantityControls.classList.add('quantity-controls');
     quantityControls.innerHTML = `
@@ -495,12 +533,14 @@ document.addEventListener("DOMContentLoaded", async function() {
       <span class="quantity">1</span>
       <button class="increment">+</button>
     `;
-    item.appendChild(quantityControls);
-
+    
+    // Заменяем кнопку "add-to-order" непосредственно на панель управления:
+    item.replaceChild(quantityControls, addBtn);
+  
     const incrementBtn = quantityControls.querySelector('.increment');
     const decrementBtn = quantityControls.querySelector('.decrement');
     const quantitySpan = quantityControls.querySelector('.quantity');
-
+  
     incrementBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       const existing = orders.find(o => o.id === dish.id);
@@ -510,7 +550,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         updateOrdersCount();
       }
     });
-
+  
     decrementBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       const existing = orders.find(o => o.id === dish.id);
@@ -520,18 +560,15 @@ document.addEventListener("DOMContentLoaded", async function() {
           quantitySpan.textContent = existing.quantity;
         } else {
           orders = orders.filter(o => o.id !== dish.id);
-          quantityControls.remove();
+          // Возвращаем панель обратно в виде кнопки, сохраняя позицию
           const newAddBtn = createAddToOrderButton(item);
-          item.appendChild(newAddBtn);
-          newAddBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            handleAddToOrderClick(item, newAddBtn);
-          });
+          item.replaceChild(newAddBtn, quantityControls);
         }
         updateOrdersCount();
       }
     });
   }
+  
 
   // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
   function addAddToOrderListeners() {
