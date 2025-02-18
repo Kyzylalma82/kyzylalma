@@ -21,10 +21,12 @@
       </h1>
       <p class="sub-info">с. Чаек, ул. Э.Матыева, 82. тел. 5065323653</p>
       <p class="description">Желаем приятно провести время</p>
+      <!-- Перемещаем поле поиска внутрь info-card -->
       <div class="search-bar">
         <input type="text" placeholder="Поиск...">
       </div>
     </div>
+    
 
     <!-- Контейнер для динамически загружаемых карточек категорий -->
     <section class="categories-cards" id="categories-cards-container">
@@ -57,25 +59,58 @@
   </div>
 
   <!-- Модальное окно для блюд -->
-  <div id="dish-modal" class="modal">
-    <div class="modal-content">
-      <span id="modal-close" class="close">&times;</span>
-      <div id="dish-details"></div>
-    </div>
-  </div>
-
-  <!-- Модальное окно для заказов -->
-<div id="order-modal" class="modal">
+<!-- Модальное окно для блюд -->
+<div id="dish-modal" class="modal">
   <div class="modal-content">
-    <span id="order-modal-close" class="close">&times;</span>
-    <div id="order-details"></div>
+    <span id="modal-close" class="close">&times;</span>
+    <div id="dish-details"></div>
   </div>
 </div>
 
-<!-- Вставьте эти скрипты в ваш HTML, например, в <head> или перед </body> -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  
+
+  <!-- Модальное окно для заказов -->
+  <div id="order-modal" class="modal">
+    <div class="modal-content order-modal-content">
+      <span id="order-modal-close" class="close">&times;</span>
+      <div id="order-details"></div>
+    </div>
+  </div>
+ <!-- Модальное окно для вызова официанта -->
+<div id="waiter-modal" class="modal">
+  <div class="modal-content waiter-modal-content">
+    <span id="waiter-modal-close" class="close">&times;</span>
+    <h2>Выберите стол</h2>
+    <div class="tables-grid">
+      <div class="tables-grid">
+        <button class="table-button" data-table="1">1</button>
+        <button class="table-button" data-table="2">2</button>
+        <button class="table-button" data-table="3">3</button>
+        <button class="table-button" data-table="4">4</button>
+        <button class="table-button" data-table="5">5</button>
+        <button class="table-button" data-table="6">6</button>
+        <button class="table-button" data-table="7">7</button>
+        <button class="table-button" data-table="8">8</button>
+        <button class="table-button" data-table="9">9</button>
+        <button class="table-button" data-table="10">10</button>
+        <button class="table-button" data-table="11">11</button>
+        <button class="table-button" data-table="12">12</button>
+        <button class="table-button" data-table="13">13</button>
+        <button class="table-button" data-table="14">14</button>
+      </div>
+      
+      <!-- Добавьте другие столы, если необходимо -->
+    </div>
+    <button id="call-waiter" disabled>Позвать официанта</button>
+  </div>
+</div>
+
+
+
+  <!-- Firebase App (core SDK) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
   <script src="script.js"></script>
 </body>
 </html>
