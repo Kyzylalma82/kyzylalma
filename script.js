@@ -353,35 +353,48 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   // Функция для показа модального окна заказов
-  function showOrdersModal() {
-    const orderModal = document.getElementById('order-modal');
-    const orderDetails = document.getElementById('order-details');
-    let html = "<h2>Ваши заказы</h2>";
-    if (orders.length === 0) {
-      html += "<p>Заказов пока нет.</p>";
-    } else {
-      orders.forEach((order, index) => {
-        html += `
-          <div class="order-item">
-            <img src="${order.imageUrl}" alt="${order.name}">
-            <div class="order-info">
-              <p><strong>${order.name}</strong></p>
-              <p>Цена: ${order.price} сом</p>
-              <p>Вес: ${order.weight} г, Количество: ${order.quantity} шт</p>
-            </div>
-            <div class="order-actions">
-              <button data-index="${index}" class="increment-order">+</button>
-              <button data-index="${index}" class="decrement-order">-</button>
-              <button data-index="${index}" class="remove-order">Удалить</button>
-            </div>
+function showOrdersModal() {
+  const orderModal = document.getElementById('order-modal');
+  const orderDetails = document.getElementById('order-details');
+  let html = "<h2>Ваши заказы</h2>";
+
+  if (orders.length === 0) {
+    html += "<p>Заказов пока нет.</p>";
+  } else {
+    orders.forEach((order, index) => {
+      html += `
+        <div class="order-item">
+          <img src="${order.imageUrl}" alt="${order.name}">
+          <div class="order-info">
+            <p><strong>${order.name}</strong></p>
+            <p>Цена: ${order.price} сом</p>
+            <p>Вес: ${order.weight} г, Количество: ${order.quantity} шт</p>
           </div>
-        `;
-      });
-    }
-    orderDetails.innerHTML = html;
-    orderModal.style.display = "block";
-    addOrderActionListeners();
+          <div class="order-actions">
+            <button data-index="${index}" class="increment-order">+</button>
+            <button data-index="${index}" class="decrement-order">-</button>
+            <button data-index="${index}" class="remove-order">Удалить</button>
+          </div>
+        </div>
+      `;
+    });
+
+    // Вычисляем подитог заказа
+    let subtotal = orders.reduce((acc, order) => {
+      return acc + (parseFloat(order.price) * order.quantity);
+    }, 0);
+
+    html += `<div class="order-subtotal" style="margin-top: 15px;">Подитог: ${subtotal.toFixed(2)} сом</div>`;
+    // Выводим сообщение, что обслуживание не включено
+    html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
+    html += `<div class="order-final" style="margin-top: 10px; font-weight: bold;">Итог: ${subtotal.toFixed(2)} сом</div>`;
   }
+
+  orderDetails.innerHTML = html;
+  orderModal.style.display = "block";
+  addOrderActionListeners();
+}
+
 
 
 
