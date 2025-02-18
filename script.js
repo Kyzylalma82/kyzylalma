@@ -715,11 +715,12 @@ document.addEventListener("DOMContentLoaded", async function() {
   }
 
   // Вызываем функции загрузки и обработчиков (однократно)
-  await loadCategories();
-  await loadDishes();
-  addInfoButtonListeners();
-  addDishModalListeners();
-  addOrderModalListeners();
-  addAddToOrderListeners();
-  addSearchFunctionality();
+subscribeCategories();
+subscribeDishes();
+addInfoButtonListeners();
+addDishModalListeners();
+addOrderModalListeners();
+addAddToOrderListeners();
+addSearchFunctionality();
+
 });
