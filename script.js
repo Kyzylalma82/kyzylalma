@@ -517,11 +517,14 @@ function showOrdersModal() {
 // Пример функции-заглушки для QR-сканера
 // Функция для запуска сканера QR‑кодов с использованием html5‑qrcode
 function startQrScanner() {
+  // Открываем модальное окно сканера
+  const qrScannerModal = document.getElementById("qr-scanner-modal");
+  qrScannerModal.style.display = "block";
+
+  // Получаем контейнер для видеопотока сканера
   const qrReaderDiv = document.getElementById("qr-reader");
-  // Показываем область сканера
-  qrReaderDiv.style.display = "block";
-  
-  // Создаем экземпляр сканера для контейнера "qr-reader"
+  qrReaderDiv.innerHTML = "";
+
   const html5QrCode = new Html5Qrcode("qr-reader");
   const config = { fps: 10, qrbox: 250 };
 
@@ -529,17 +532,15 @@ function startQrScanner() {
     { facingMode: "environment" },
     config,
     (decodedText, decodedResult) => {
-      // Ожидаемый формат QR‑кода для подключения к Wi‑Fi кафе:
       const expectedCode = "WIFI:S:CafeNetwork;T:WPA;P:password;;";
-      
       if (decodedText === expectedCode) {
         alert("Подключение подтверждено!");
-        // Активируем кнопку "Позвать официанта"
-        document.getElementById('call-waiter').disabled = false;
-        // Скрываем область сканера
-        qrReaderDiv.style.display = "none";
-        // Останавливаем сканер
-        html5QrCode.stop().catch(err => {
+        // Останавливаем сканер и закрываем модальное окно сканера
+        html5QrCode.stop().then(() => {
+          qrScannerModal.style.display = "none";
+          // Автоматически открываем модальное окно для выбора столов
+          document.getElementById('waiter-modal').style.display = 'block';
+        }).catch(err => {
           console.error("Ошибка остановки сканера:", err);
         });
       } else {
@@ -547,7 +548,6 @@ function startQrScanner() {
       }
     },
     (errorMessage) => {
-      // Можно выводить сообщения об ошибках чтения
       console.warn("Ошибка чтения QR:", errorMessage);
     }
   ).catch(err => {
