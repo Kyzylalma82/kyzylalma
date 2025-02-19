@@ -518,29 +518,46 @@ function showOrdersModal() {
 // Пример функции-заглушки для QR-сканера
 // Функция для запуска сканера QR‑кодов с использованием html5‑qrcode
 function startQrScanner() {
-  // Открываем модальное окно сканера
+  // Получаем модальное окно сканера QR-кода
   const qrScannerModal = document.getElementById("qr-scanner-modal");
+  if (!qrScannerModal) {
+    console.error("Элемент с id 'qr-scanner-modal' не найден.");
+    return;
+  }
   qrScannerModal.style.display = "block";
 
   // Получаем контейнер для видеопотока сканера
   const qrReaderDiv = document.getElementById("qr-reader");
+  if (!qrReaderDiv) {
+    console.error("Элемент с id 'qr-reader' не найден.");
+    return;
+  }
+  // Очищаем контейнер, чтобы избежать предыдущих остатков
   qrReaderDiv.innerHTML = "";
 
+  // Создаем экземпляр сканера с использованием html5-qrcode
   const html5QrCode = new Html5Qrcode("qr-reader");
   const config = { fps: 10, qrbox: 250 };
 
   html5QrCode.start(
-    { facingMode: "environment" },
+    { facingMode: "environment" }, // Используем заднюю камеру
     config,
     (decodedText, decodedResult) => {
+      // Ожидаемые данные QR-кода (данные Wi-Fi сети кафе)
       const expectedCode = "WIFI:S:CafeNetwork;T:WPA;P:password;;";
       if (decodedText === expectedCode) {
+        console.log("QR-код распознан и соответствует ожидаемому значению.");
         alert("Подключение подтверждено!");
         // Останавливаем сканер и закрываем модальное окно сканера
         html5QrCode.stop().then(() => {
           qrScannerModal.style.display = "none";
           // Автоматически открываем модальное окно для выбора столов
-          document.getElementById('waiter-modal').style.display = 'block';
+          const waiterModal = document.getElementById("waiter-modal");
+          if (waiterModal) {
+            waiterModal.style.display = "block";
+          } else {
+            console.error("Элемент 'waiter-modal' не найден.");
+          }
         }).catch(err => {
           console.error("Ошибка остановки сканера:", err);
         });
@@ -555,6 +572,7 @@ function startQrScanner() {
     console.error("Ошибка запуска сканера QR‑кода:", err);
   });
 }
+
 
 
 
