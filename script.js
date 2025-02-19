@@ -474,7 +474,7 @@ function showOrdersModal() {
     // Кнопка "Позвать официанта" (изначально неактивна)
     html += `<button id="order-call-waiter" disabled>Позвать официанта</button>`;
     // Текст-инструкция (постоянно видимая)
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к 1 сети Wi‑Fi кафе.</p>`;
 
     // Кнопка для сканирования QR‑кода, изначально скрыта
     html += `<button id="scan-qr" style="margin-left: 10px; display: none;">Сканировать QR‑code 1 Wi‑Fi</button>`;
