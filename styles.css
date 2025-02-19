@@ -561,7 +561,28 @@ body {
 }
 
 /* Кнопка "Позвать официанта" */
-#call-waiter {
+/* Кнопка "Позвать официанта" */
+#order-call-waiter {
+  background-color: #FFA000;  /* активное состояние */
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin: 10px; /* одинаковый отступ */
+}
+
+#order-call-waiter:disabled {
+  background-color: #cccccc; /* более светлый, серый для неактивного */
+  color: #777777;
+  cursor: not-allowed;
+  margin: 10px; /* отступы сохраняются */
+}
+
+/* Кнопка "Сканировать QR‑code Wi‑Fi" */
+#scan-qr {
   background-color: #FFA000;
   color: #000;
   border: none;
@@ -570,10 +591,15 @@ body {
   font-size: 1.1rem;
   cursor: pointer;
   transition: background 0.3s;
+  margin: 10px; /* одинаковый отступ */
 }
 
-#call-waiter:disabled {
-  background-color: #666;
-  cursor: not-allowed;
+#scan-qr:hover {
+  background-color: #ffbf40;
+  margin: 10px;
 }
-
+#wifi-instruction {
+  margin-left: 10px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
