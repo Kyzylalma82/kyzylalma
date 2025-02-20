@@ -103,7 +103,15 @@
       <button id="call-waiter" disabled>Позвать официанта</button>
     </div>
   </div>
-  
+<!-- Модальное окно для сканирования QR-кода -->
+<div id="qr-scanner-modal" class="modal">
+  <div class="modal-content qr-scanner-content">
+    <span id="qr-scanner-close" class="close">&times;</span>
+    <div id="qr-reader"></div>
+  </div>
+</div>
+
+
 
   <!-- Firebase App (core SDK) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
