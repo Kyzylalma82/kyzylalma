@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function() {
+  
   // Глобальный массив для хранения заказанных блюд
   let orders = [];
 
@@ -474,7 +475,7 @@ function showOrdersModal() {
     // Кнопка "Позвать официанта" (изначально неактивна)
     html += `<button id="order-call-waiter" disabled>Позвать официанта</button>`;
     // Текст-инструкция (постоянно видимая)
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к 3 сети Wi‑Fi кафе.</p>`;
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к 4 сети Wi‑Fi кафе.</p>`;
 
     // Кнопка для сканирования QR‑кода, изначально скрыта
     html += `<button id="scan-qr" style="margin-left: 10px; display: none;">Сканировать QR‑code 1 Wi‑Fi</button>`;
@@ -522,8 +523,10 @@ function showOrdersModal() {
 
 
     // Функция для запуска сканера QR‑кодов с использованием html5‑qrcode
+// Глобальная переменная для хранения экземпляра сканера
+let currentQrCodeScanner = null;
 
-    function startQrScanner() {
+function startQrScanner() {
   console.log("startQrScanner() вызвана");
 
   const qrScannerModal = document.getElementById("qr-scanner-modal");
@@ -538,40 +541,46 @@ function showOrdersModal() {
     console.error("Элемент с id 'qr-reader' не найден.");
     return;
   }
-  // Явно задаём размеры и делаем элемент видимым
+  // Очищаем контейнер и устанавливаем размеры
   qrReaderDiv.style.display = "block";
   qrReaderDiv.style.width = "300px";
   qrReaderDiv.style.height = "300px";
   qrReaderDiv.innerHTML = "";
   console.log("Computed width:", getComputedStyle(qrReaderDiv).width);
 
-  // Даем время браузеру отрисовать элемент (задержка 4000 мс)
   setTimeout(function() {
     Html5Qrcode.getCameras().then(devices => {
       if (!devices || devices.length === 0) {
         console.error("Камеры не найдены.");
         return;
       }
-      // Используем первую найденную камеру
       const cameraId = devices[0].id;
       console.log("Используем камеру:", devices[0]);
 
       const html5QrCode = new Html5Qrcode("qr-reader");
-      // Используем объект для qrbox – иногда помогает избежать ошибок размеров
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      currentQrCodeScanner = html5QrCode;
+      const config = { fps: 10, qrbox: 250 };
 
       html5QrCode.start(
         cameraId,
         config,
         (decodedText, decodedResult) => {
-          const expectedCode = "WIFI:S:CafeNetwork;T:WPA;P:password;;";
-          if (decodedText === expectedCode) {
-            console.log("QR-код распознан и соответствует ожидаемому значению.");
+          console.log("QR‑код прочитан:", decodedText);
+          // Ожидаемый QR‑код для Wi‑Fi сети кафе (логин: K&A, пароль: 15690024)
+          const expectedCode = "WIFI:S:K&A;T:WPA;P:15690024;;";
+          if (decodedText.trim() === expectedCode) {
             alert("Подключение подтверждено!");
             html5QrCode.stop().then(() => {
+              currentQrCodeScanner = null;
               qrScannerModal.style.display = "none";
+              // Открываем окно вызова официанта (окно со столами)
               const waiterModal = document.getElementById("waiter-modal");
               if (waiterModal) {
+                // Скрываем кнопку сканирования QR‑кода в этом окне, оставляя кнопку "Позвать официанта"
+                const scanBtn = waiterModal.querySelector("#scan-qr");
+                if (scanBtn) {
+                  scanBtn.style.display = "none";
+                }
                 waiterModal.style.display = "block";
               } else {
                 console.error("Элемент 'waiter-modal' не найден.");
@@ -592,10 +601,17 @@ function showOrdersModal() {
     }).catch(err => {
       console.error("Ошибка получения списка камер:", err);
     });
-  }, 4000);
+  }, 500);
 }
+ 
+    
+
+
+
+
 
     
+
     
     
 
@@ -949,3 +965,7 @@ addAddToOrderListeners();
 addSearchFunctionality();
 
 });
+
+
+
+
