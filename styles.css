@@ -603,3 +603,40 @@ body {
   font-size: 0.9rem;
   color: #ccc;
 }
+
+/* Модальное окно для сканера QR-кода */
+#qr-scanner-modal {
+  display: none; /* Скрыто по умолчанию */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.8); /* затемненный фон */
+  z-index: 300; /* выше остальных элементов */
+}
+
+.qr-scanner-content {
+  position: relative;
+  margin: 5% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  background-color: #2A2A2A;
+  border-radius: 10px;
+}
+
+.qr-scanner-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+}
+#qr-reader {
+  width: 300px;
+  height: 300px;
+  display: block; /* убедитесь, что он отображается */
+}
