@@ -474,7 +474,7 @@ function showOrdersModal() {
     // Кнопка "Позвать официанта" (изначально неактивна)
     html += `<button id="order-call-waiter" disabled>Позвать официанта</button>`;
     // Текст-инструкция (постоянно видимая)
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к 2 сети Wi‑Fi кафе.</p>`;
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к 3 сети Wi‑Fi кафе.</p>`;
 
     // Кнопка для сканирования QR‑кода, изначально скрыта
     html += `<button id="scan-qr" style="margin-left: 10px; display: none;">Сканировать QR‑code 1 Wi‑Fi</button>`;
@@ -538,53 +538,66 @@ function showOrdersModal() {
         console.error("Элемент с id 'qr-reader' не найден.");
         return;
       }
+      // Явно задаём размеры и делаем элемент видимым
       qrReaderDiv.style.display = "block";
       qrReaderDiv.style.width = "300px";
       qrReaderDiv.style.height = "300px";
       qrReaderDiv.innerHTML = "";
       console.log("Computed width:", getComputedStyle(qrReaderDiv).width);
     
-      // Увеличиваем задержку до 2000 мс
+      // Задержка, чтобы дать время на отрисовку (3000 мс)
       setTimeout(function() {
-        const config = { 
-          fps: 10, 
-          qrbox: 250,
-          videoConstraints: { width: { ideal: 1280 }, height: { ideal: 720 } }
-        };
-    
-        const html5QrCode = new Html5Qrcode("qr-reader");
-    
-        html5QrCode.start(
-          { facingMode: "environment" },
-          config,
-          (decodedText, decodedResult) => {
-            const expectedCode = "WIFI:S:CafeNetwork;T:WPA;P:password;;";
-            if (decodedText === expectedCode) {
-              console.log("QR-код распознан и соответствует ожидаемому значению.");
-              alert("Подключение подтверждено!");
-              html5QrCode.stop().then(() => {
-                qrScannerModal.style.display = "none";
-                const waiterModal = document.getElementById("waiter-modal");
-                if (waiterModal) {
-                  waiterModal.style.display = "block";
-                } else {
-                  console.error("Элемент 'waiter-modal' не найден.");
-                }
-              }).catch(err => {
-                console.error("Ошибка остановки сканера:", err);
-              });
-            } else {
-              alert("Неверный QR‑код. Попробуйте снова.");
-            }
-          },
-          (errorMessage) => {
-            console.warn("Ошибка чтения QR:", errorMessage);
+        Html5Qrcode.getCameras().then(devices => {
+          if (!devices || devices.length === 0) {
+            console.error("Камеры не найдены.");
+            return;
           }
-        ).catch(err => {
-          console.error("Ошибка запуска сканера QR‑кода:", err);
+          const cameraId = devices[0].id;
+          console.log("Используем камеру:", devices[0]);
+    
+          const html5QrCode = new Html5Qrcode("qr-reader");
+          // Задаем более низкое разрешение видеопотока через videoConstraints
+          const config = { 
+            fps: 10, 
+            qrbox: 250,
+            videoConstraints: { width: { ideal: 640 }, height: { ideal: 480 } }
+          };
+    
+          html5QrCode.start(
+            cameraId,
+            config,
+            (decodedText, decodedResult) => {
+              const expectedCode = "WIFI:S:CafeNetwork;T:WPA;P:password;;";
+              if (decodedText === expectedCode) {
+                console.log("QR-код распознан и соответствует ожидаемому значению.");
+                alert("Подключение подтверждено!");
+                html5QrCode.stop().then(() => {
+                  qrScannerModal.style.display = "none";
+                  const waiterModal = document.getElementById("waiter-modal");
+                  if (waiterModal) {
+                    waiterModal.style.display = "block";
+                  } else {
+                    console.error("Элемент 'waiter-modal' не найден.");
+                  }
+                }).catch(err => {
+                  console.error("Ошибка остановки сканера:", err);
+                });
+              } else {
+                alert("Неверный QR‑код. Попробуйте снова.");
+              }
+            },
+            (errorMessage) => {
+              console.warn("Ошибка чтения QR:", errorMessage);
+            }
+          ).catch(err => {
+            console.error("Ошибка запуска сканера QR‑кода:", err);
+          });
+        }).catch(err => {
+          console.error("Ошибка получения списка камер:", err);
         });
-      }, 2000); // задержка 2000 мс
+      }, 3000);
     }
+    
     
     
 
