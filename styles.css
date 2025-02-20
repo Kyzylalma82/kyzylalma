@@ -562,6 +562,22 @@ body {
 
 /* Кнопка "Позвать официанта" */
 /* Кнопка "Позвать официанта" */
+#call-waiter {
+  background-color: #FFA000;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#call-waiter:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+/* Кнопка "Позвать официанта" */
 #order-call-waiter {
   background-color: #FFA000;  /* активное состояние */
   color: #000;
@@ -640,3 +656,4 @@ body {
   height: 300px;
   display: block; /* убедитесь, что он отображается */
 }
+
