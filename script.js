@@ -427,55 +427,19 @@ document.addEventListener("DOMContentLoaded", async function() {
 // Функция проверки подключения
 // Функция проверки подключения Wi‑Fi, возвращает Promise, который резолвится в true/false
 // Определяем функцию checkWiFiConnection внутри script.js
+// Функция проверки подключения Wi‑Fi (возвращает Promise, который резолвится в true/false)
 function checkWiFiConnection() {
   return fetch("http://192.168.0.152:5001/check-connection")
     .then(response => response.json())
     .then(data => {
       console.log("Ответ от сервера:", data);
-      return data.connected;  // возвращает true или false
+      return data.connected;  // true, если подключен, false если нет
     })
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
       return false;
     });
 }
-
-// Обработчик, который используется после загрузки DOM
-document.addEventListener("DOMContentLoaded", function() {
-  // Получаем нужные элементы
-  const orderCallWaiterBtn = document.getElementById('order-call-waiter');
-  const scanQrBtn = document.getElementById('scan-qr');
-  const wifiInstruction = document.getElementById('wifi-instruction');
-
-  // Вызываем функцию проверки подключения
-  checkWiFiConnection().then(connected => {
-    if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
-      if (connected) {
-        // Если клиент в сети Wi‑Fi кафе — разрешаем вызов официанта (открываем модальное окно)
-        orderCallWaiterBtn.disabled = false;
-        scanQrBtn.disabled = true;
-        wifiInstruction.style.display = 'none';
-        orderCallWaiterBtn.onclick = () => {
-          document.getElementById('waiter-modal').style.display = 'block';
-        };
-      } else {
-        // Если клиент не в сети кафе — показываем инструкцию и перенаправляем на локальный сервер при клике
-        orderCallWaiterBtn.disabled = false;  // делаем кнопку активной
-        scanQrBtn.disabled = false;
-        wifiInstruction.style.display = 'inline-block';
-        wifiInstruction.textContent = "Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.";
-        orderCallWaiterBtn.onclick = () => {
-          window.location.href = "http://192.168.0.152:5001/";
-        };
-      }
-      updateButtonStyles(orderCallWaiterBtn);
-      updateButtonStyles(scanQrBtn);
-    }
-  });
-});
-
-
-
 
 function showOrdersModal() {
   const orderModal = document.getElementById('order-modal');
@@ -508,11 +472,11 @@ function showOrdersModal() {
     html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
 
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
-    // Кнопка "Вызвать официанта" остаётся, но её состояние будет зависеть от подключения
-    html += `<button id="order-call-waiter" disabled class="styled-button">Вызвать официанта</button>`;
-    // Сообщение для клиента, которое будет видно при отсутствии подключения
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: none;">Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.</p>`;
-    // Кнопка для сканирования QR‑кода, которая активируется при отсутствии подключения
+    // Кнопка "Вызвать официанта" – текст остаётся неизменным и кнопка всегда кликабельна
+    html += `<button id="order-call-waiter" class="styled-button">Вызвать официанта</button>`;
+    // Инструкция для пользователя (будет показана, если клиент не подключён к Wi‑Fi)
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: none;"></p>`;
+    // Кнопка для сканирования QR‑кода (активируется, если клиент не в сети)
     html += `<button id="scan-qr" disabled class="styled-button">Сканировать QR‑code Wi‑Fi</button>`;
     html += `</div>`;
   }
@@ -521,49 +485,51 @@ function showOrdersModal() {
   orderModal.style.display = "block";
   addOrderActionListeners();
 
-  // Получаем созданные элементы
+  // Получаем элементы, которые мы только что создали
   const orderCallWaiterBtn = document.getElementById('order-call-waiter');
   const scanQrBtn = document.getElementById('scan-qr');
   const wifiInstruction = document.getElementById('wifi-instruction');
 
-  // Проверяем подключение и обновляем состояние элементов
+  // Всегда делаем кнопку "Вызвать официанта" активной
+  orderCallWaiterBtn.disabled = false;
+
+  // Обновляем интерфейс (например, показываем инструкцию и активируем кнопку сканирования)
   checkWiFiConnection().then(connected => {
     if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
       if (connected) {
-        // Если клиент находится в кафе, разрешаем вызов официанта
-        orderCallWaiterBtn.disabled = false;
-        scanQrBtn.disabled = true;
         wifiInstruction.style.display = 'none';
+        scanQrBtn.disabled = true;
       } else {
-        // Если клиент не в сети кафе, не активируем кнопку вызова официанта
-        orderCallWaiterBtn.disabled = true;
-        // Активируем кнопку сканирования QR‑кода, чтобы клиент мог узнать, как подключиться
-        scanQrBtn.disabled = false;
         wifiInstruction.style.display = 'inline-block';
+        wifiInstruction.textContent = "Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.";
+        scanQrBtn.disabled = false;
       }
       updateButtonStyles(orderCallWaiterBtn);
       updateButtonStyles(scanQrBtn);
     }
   });
 
-  // Обработчик для кнопки "Сканировать QR‑code"
+  // Обработчик клика для кнопки "Вызвать официанта"
+  orderCallWaiterBtn.addEventListener('click', function () {
+    checkWiFiConnection().then(connected => {
+      if (connected) {
+        // Если клиент подключён к Wi‑Fi, открываем модальное окно выбора стола
+        document.getElementById('waiter-modal').style.display = 'block';
+      } else {
+        // Если клиент не в сети, перенаправляем его на локальный сервер
+        window.location.href = "http://192.168.0.152:5001/";
+      }
+    });
+  });
+
+  // Обработчик для кнопки "Сканировать QR‑code Wi‑Fi"
   if (scanQrBtn) {
     scanQrBtn.addEventListener('click', function () {
       startQrScanner();
     });
   }
 
-  // Обработчик для кнопки "Вызвать официанта"
-  if (orderCallWaiterBtn) {
-    orderCallWaiterBtn.addEventListener('click', function () {
-      // Если кнопка активна, открываем модальное окно для выбора стола
-      if (!orderCallWaiterBtn.disabled) {
-        document.getElementById('waiter-modal').style.display = 'block';
-      }
-    });
-  }
-
-  // Обработчик для кнопки "Назад" из QR‑модалки
+  // Обработчик для кнопки "Назад" в модальном окне QR‑сканера
   const qrScannerBackBtn = document.getElementById('qr-scanner-back');
   if (qrScannerBackBtn) {
     qrScannerBackBtn.addEventListener('click', function () {
