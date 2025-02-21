@@ -1,4 +1,4 @@
-мlet currentQrScanner = null;
+let currentQrScanner = null;
 
 document.addEventListener("DOMContentLoaded", async function() {
   
