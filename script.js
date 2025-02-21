@@ -425,14 +425,28 @@ document.addEventListener("DOMContentLoaded", async function() {
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
 // Функция проверки подключения
 function checkWiFiConnection() {
-  return fetch('http://192.168.0.152:5001/check-connection?ssid=' + encodeURIComponent("K&A") + '&code=15690024')
+  fetch('http://192.168.0.152:5001/check-connection')
     .then(response => response.json())
-    .then(data => data.connected)
+    .then(data => {
+      console.log("Ответ от сервера:", data);
+      
+      if (data.connected) {
+        console.log("✅ Клиент в кафе, активируем кнопку вызова официанта.");
+        document.getElementById('order-call-waiter').disabled = false;
+      } else {
+        console.log("❌ Клиент НЕ в кафе, оставляем кнопку отключённой.");
+        document.getElementById('order-call-waiter').disabled = true;
+      }
+    })
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
-      return false;
+      document.getElementById('order-call-waiter').disabled = true;
     });
 }
+
+// Проверять каждые 5 секунд
+setInterval(checkWiFiConnection, 5000);
+
 
 
 
