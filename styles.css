@@ -652,8 +652,37 @@ body {
   cursor: pointer;
 }
 #qr-reader {
-  width: 300px;
-  height: 300px;
-  display: block; /* убедитесь, что он отображается */
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  aspect-ratio: 1 / 1; /* Сделает квадрат */
+  margin: 0 auto;
+  background-color: #000; /* Чтобы не сливалось */
+  position: relative;
+  overflow: hidden; /* Важно, чтобы камера не вылезала */
 }
 
+#qr-reader > * {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+.styled-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  margin-left: 10px;
+  transition: background-color 0.3s;
+}
+#qr-scanner-back {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #FFA000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
