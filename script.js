@@ -421,14 +421,13 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
 
-  // Функция для показа модального окна заказов
 // Функция проверки подключения Wi‑Fi (возвращает Promise с true/false)
 function checkWiFiConnection() {
   return fetch("http://192.168.0.152:5001/check-connection")
     .then(response => response.json())
     .then(data => {
       console.log("Ответ от сервера:", data);
-      return data.connected;  // true, если клиент подключён, false если нет
+      return data.connected;  // true, если подключен, false если нет
     })
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
@@ -467,7 +466,7 @@ function showOrdersModal() {
     html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
 
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
-    // Кнопка "Вызвать официанта" – текст остается неизменным
+    // Кнопка "Вызвать официанта" – текст остаётся неизменным и кнопка всегда кликабельна
     html += `<button id="order-call-waiter" class="styled-button">Вызвать официанта</button>`;
     // Инструкция для пользователя (будет показана, если клиент не подключён к Wi‑Fi)
     html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: none;"></p>`;
@@ -485,10 +484,10 @@ function showOrdersModal() {
   const scanQrBtn = document.getElementById('scan-qr');
   const wifiInstruction = document.getElementById('wifi-instruction');
 
-  // Всегда делаем кнопку "Вызвать официанта" активной (без изменения ее названия)
+  // Всегда делаем кнопку "Вызвать официанта" активной
   orderCallWaiterBtn.disabled = false;
 
-  // Обновляем UI на основе первоначальной проверки подключения
+  // Первоначальное обновление интерфейса на основе проверки подключения
   checkWiFiConnection().then(connected => {
     if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
       if (connected) {
@@ -517,7 +516,7 @@ function showOrdersModal() {
         // Если клиент не подключён, показываем сообщение под кнопкой
         wifiInstruction.style.display = 'inline-block';
         wifiInstruction.textContent = "Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.";
-        // Здесь можно оставить кнопку "Сканировать QR‑code" активной для помощи подключения
+        // Кнопка для сканирования QR‑кода остается активной, чтобы клиент мог подключиться
       }
     });
   });
@@ -529,7 +528,7 @@ function showOrdersModal() {
     });
   }
 
-  // Обработчик для кнопки "Назад" из QR‑модалки
+  // Обработчик для кнопки "Назад" в модальном окне QR‑сканера
   const qrScannerBackBtn = document.getElementById('qr-scanner-back');
   if (qrScannerBackBtn) {
     qrScannerBackBtn.addEventListener('click', function () {
