@@ -442,41 +442,29 @@ document.addEventListener("DOMContentLoaded", async function() {
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
 // Функция проверки подключения
+// Функция проверки подключения Wi‑Fi, возвращает Promise, который резолвится в true/false
 function checkWiFiConnection() {
-  fetch("http://192.168.0.152:5001/check-connection")
+  return fetch("http://192.168.0.152:5001/check-connection")
     .then(response => response.json())
     .then(data => {
       console.log("Ответ от сервера:", data);
       
-      if (data.connected) {
-        console.log("✅ Клиент в кафе, активируем кнопку вызова официанта.");
-        document.getElementById("order-call-waiter").disabled = false;
-        
-        // Если сайт открыт с GitHub Pages, переключаемся на локальный сервер
-        if (window.location.hostname === "kyzylalma82.github.io") {
-          console.log("🌍 Переключаемся на локальный сервер...");
-          window.location.href = "http://192.168.0.152:5001/";
-        }
-      } else {
-        console.log("❌ Клиент НЕ в кафе, оставляем кнопку отключённой.");
-        document.getElementById("order-call-waiter").disabled = true;
+      // Если клиент в кафе и сайт открыт с GitHub Pages — перенаправляем
+      if (data.connected && window.location.hostname === "kyzylalma82.github.io") {
+        console.log("🌍 Переключаемся на локальный сервер...");
+        window.location.href = "http://192.168.0.152:5001/";
       }
+      
+      return data.connected;
     })
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
-      document.getElementById("order-call-waiter").disabled = true;
+      return false;
     });
 }
 
-// Проверять каждые 5 секунд
-setInterval(checkWiFiConnection, 5000);
-
-
-
-
-
-
-
+// Глобальный вызов setInterval удалён, чтобы не было конфликтов,
+// поскольку обновление кнопок теперь происходит там, где элемент точно существует.
 
 function showOrdersModal() {
   const orderModal = document.getElementById('order-modal');
@@ -510,7 +498,7 @@ function showOrdersModal() {
 
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
     html += `<button id="order-call-waiter" disabled class="styled-button">Вызвать официанта</button>`;
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: inline-block;">Чтобы 1 воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: inline-block;">Чтобы воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
     html += `<button id="scan-qr" disabled class="styled-button">Сканировать QR‑code Wi‑Fi</button>`;
     html += `</div>`;
   }
@@ -519,38 +507,45 @@ function showOrdersModal() {
   orderModal.style.display = "block";
   addOrderActionListeners();
 
+  // Получаем созданные элементы
   const orderCallWaiterBtn = document.getElementById('order-call-waiter');
   const scanQrBtn = document.getElementById('scan-qr');
+  const wifiInstruction = document.getElementById('wifi-instruction');
 
+  // Проверяем подключение и обновляем состояние кнопок, если они существуют
   checkWiFiConnection().then(connected => {
-    if (connected) {
-      orderCallWaiterBtn.disabled = false;
-      scanQrBtn.disabled = true;
-      document.getElementById('wifi-instruction').style.display = 'none';
-    } else {
-      orderCallWaiterBtn.disabled = true;
-      scanQrBtn.disabled = false;
-      document.getElementById('wifi-instruction').style.display = 'inline-block';
+    if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
+      if (connected) {
+        orderCallWaiterBtn.disabled = false;
+        scanQrBtn.disabled = true;
+        wifiInstruction.style.display = 'none';
+      } else {
+        orderCallWaiterBtn.disabled = true;
+        scanQrBtn.disabled = false;
+        wifiInstruction.style.display = 'inline-block';
+      }
+      updateButtonStyles(orderCallWaiterBtn);
+      updateButtonStyles(scanQrBtn);
     }
-    updateButtonStyles(orderCallWaiterBtn);
-    updateButtonStyles(scanQrBtn);
   });
 
-  // Присваиваем обработчик кнопке "Сканировать QR"
+  // Обработчик для кнопки "Сканировать QR‑code"
   if (scanQrBtn) {
     scanQrBtn.addEventListener('click', function () {
       startQrScanner();
     });
   }
 
-  // Присваиваем обработчик кнопке "Вызвать официанта"
-  orderCallWaiterBtn.addEventListener('click', function () {
-    if (!orderCallWaiterBtn.disabled) {
-      document.getElementById('waiter-modal').style.display = 'block';
-    }
-  });
+  // Обработчик для кнопки "Вызвать официанта"
+  if (orderCallWaiterBtn) {
+    orderCallWaiterBtn.addEventListener('click', function () {
+      if (!orderCallWaiterBtn.disabled) {
+        document.getElementById('waiter-modal').style.display = 'block';
+      }
+    });
+  }
 
-  // ОБРАБОТЧИК ДЛЯ КНОПКИ "Назад" ИЗ QR-МОДАЛКИ (каждый раз обновляем!)
+  // Обработчик для кнопки "Назад" из QR‑модалки
   const qrScannerBackBtn = document.getElementById('qr-scanner-back');
   if (qrScannerBackBtn) {
     qrScannerBackBtn.addEventListener('click', function () {
@@ -560,6 +555,8 @@ function showOrdersModal() {
     });
   }
 }
+
+
 
 
 
