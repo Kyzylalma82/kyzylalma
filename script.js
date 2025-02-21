@@ -1,20 +1,3 @@
-// Подключаемся к WebSocket-серверу
-const socket = io("http://192.168.0.152:5001");
-
-// Когда клиент подключается к WebSocket
-socket.on("connect", () => {
-    console.log("✅ WebSocket соединение установлено");
-});
-
-// Когда сервер сообщает, что Wi-Fi кафе доступен
-socket.on("wifi-status", (data) => {
-  if (data.connected && window.location.hostname !== "192.168.0.152") {
-      console.log("🌍 Переключаемся на локальный сервер...");
-      window.location.href = "http://192.168.0.152:5001/";
-  }
-});
-
-
 
 let currentQrScanner = null;
 
@@ -448,13 +431,6 @@ function checkWiFiConnection() {
     .then(response => response.json())
     .then(data => {
       console.log("Ответ от сервера:", data);
-      
-      // Если клиент в кафе и сайт открыт с GitHub Pages — перенаправляем
-      if (data.connected && window.location.hostname === "kyzylalma82.github.io") {
-        console.log("🌍 Переключаемся на локальный сервер...");
-        window.location.href = "http://192.168.0.152:5001/";
-      }
-      
       return data.connected;
     })
     .catch(err => {
@@ -463,8 +439,6 @@ function checkWiFiConnection() {
     });
 }
 
-// Глобальный вызов setInterval удалён, чтобы не было конфликтов,
-// поскольку обновление кнопок теперь происходит там, где элемент точно существует.
 
 function showOrdersModal() {
   const orderModal = document.getElementById('order-modal');
@@ -497,8 +471,11 @@ function showOrdersModal() {
     html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
 
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
+    // Кнопка "Вызвать официанта" остаётся, но её состояние будет зависеть от подключения
     html += `<button id="order-call-waiter" disabled class="styled-button">Вызвать официанта</button>`;
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: inline-block;">Чтобы воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
+    // Сообщение для клиента, которое будет видно при отсутствии подключения
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: none;">Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.</p>`;
+    // Кнопка для сканирования QR‑кода, которая активируется при отсутствии подключения
     html += `<button id="scan-qr" disabled class="styled-button">Сканировать QR‑code Wi‑Fi</button>`;
     html += `</div>`;
   }
@@ -512,15 +489,18 @@ function showOrdersModal() {
   const scanQrBtn = document.getElementById('scan-qr');
   const wifiInstruction = document.getElementById('wifi-instruction');
 
-  // Проверяем подключение и обновляем состояние кнопок, если они существуют
+  // Проверяем подключение и обновляем состояние элементов
   checkWiFiConnection().then(connected => {
     if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
       if (connected) {
+        // Если клиент находится в кафе, разрешаем вызов официанта
         orderCallWaiterBtn.disabled = false;
         scanQrBtn.disabled = true;
         wifiInstruction.style.display = 'none';
       } else {
+        // Если клиент не в сети кафе, не активируем кнопку вызова официанта
         orderCallWaiterBtn.disabled = true;
+        // Активируем кнопку сканирования QR‑кода, чтобы клиент мог узнать, как подключиться
         scanQrBtn.disabled = false;
         wifiInstruction.style.display = 'inline-block';
       }
@@ -539,6 +519,7 @@ function showOrdersModal() {
   // Обработчик для кнопки "Вызвать официанта"
   if (orderCallWaiterBtn) {
     orderCallWaiterBtn.addEventListener('click', function () {
+      // Если кнопка активна, открываем модальное окно для выбора стола
       if (!orderCallWaiterBtn.disabled) {
         document.getElementById('waiter-modal').style.display = 'block';
       }
@@ -555,6 +536,7 @@ function showOrdersModal() {
     });
   }
 }
+
 
 
 
