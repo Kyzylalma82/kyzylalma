@@ -1,3 +1,5 @@
+мlet currentQrScanner = null;
+
 document.addEventListener("DOMContentLoaded", async function() {
   
   // Глобальный массив для хранения заказанных блюд
@@ -421,19 +423,23 @@ document.addEventListener("DOMContentLoaded", async function() {
   // Функция для показа модального окна заказов
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
+// Функция проверки подключения
 function checkWiFiConnection() {
-  return fetch('/check-connection')
+  return fetch('http://192.168.0.152:5001/check-connection?ssid=' + encodeURIComponent("K&A") + '&code=15690024')
     .then(response => response.json())
-    .then(data => {
-      return data.connected; // true, если подключен, иначе false
-    })
+    .then(data => data.connected)
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
       return false;
     });
 }
 
-// Функция, которая запускается при открытии окна заказа
+
+
+
+
+
+
 function showOrdersModal() {
   const orderModal = document.getElementById('order-modal');
   const orderDetails = document.getElementById('order-details');
@@ -442,7 +448,6 @@ function showOrdersModal() {
   if (orders.length === 0) {
     html += "<p>Заказов пока нет.</p>";
   } else {
-    // Перебор заказов (ваш существующий код)
     orders.forEach((order, index) => {
       html += `
         <div class="order-item">
@@ -461,24 +466,14 @@ function showOrdersModal() {
       `;
     });
 
-    // Подсчет итоговой суммы (подитог)
-    let subtotal = orders.reduce((acc, order) => {
-      return acc + (parseFloat(order.price) * order.quantity);
-    }, 0);
-
+    let subtotal = orders.reduce((acc, order) => acc + (parseFloat(order.price) * order.quantity), 0);
     html += `<div class="order-subtotal" style="margin-top: 15px;">Подитог: ${subtotal.toFixed(2)} сом</div>`;
     html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
-    
 
-    // Добавляем секцию для вызова официанта
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
-    // Кнопка "Позвать официанта" (изначально неактивна)
-    html += `<button id="order-call-waiter" disabled>Позвать официанта</button>`;
-    // Текст-инструкция (постоянно видимая)
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc;">Чтобы воспользоваться этой функцией, необходимо подключиться к 4 сети Wi‑Fi кафе.</p>`;
-
-    // Кнопка для сканирования QR‑кода, изначально скрыта
-    html += `<button id="scan-qr" style="margin-left: 10px; display: none;">Сканировать QR‑code 1 Wi‑Fi</button>`;
+    html += `<button id="order-call-waiter" disabled class="styled-button">Вызвать официанта</button>`;
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: inline-block;">Чтобы воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
+    html += `<button id="scan-qr" disabled class="styled-button">Сканировать QR‑code Wi‑Fi</button>`;
     html += `</div>`;
   }
 
@@ -486,33 +481,46 @@ function showOrdersModal() {
   orderModal.style.display = "block";
   addOrderActionListeners();
 
-  // При открытии окна сразу проверяем подключение
+  const orderCallWaiterBtn = document.getElementById('order-call-waiter');
+  const scanQrBtn = document.getElementById('scan-qr');
+
   checkWiFiConnection().then(connected => {
     if (connected) {
-      // Если подключен, активируем кнопку "Позвать официанта"
-      document.getElementById('order-call-waiter').disabled = false;
-      // Скрываем инструкцию и кнопку сканирования
+      orderCallWaiterBtn.disabled = false;
+      scanQrBtn.disabled = true;
       document.getElementById('wifi-instruction').style.display = 'none';
-      document.getElementById('scan-qr').style.display = 'none';
     } else {
-      // Если не подключен, оставляем кнопку "Позвать официанта" неактивной
-      // и показываем инструкцию и кнопку для сканирования QR‑кода
-      document.getElementById('order-call-waiter').disabled = true;
+      orderCallWaiterBtn.disabled = true;
+      scanQrBtn.disabled = false;
       document.getElementById('wifi-instruction').style.display = 'inline-block';
-      document.getElementById('scan-qr').style.display = 'inline-block';
+    }
+    updateButtonStyles(orderCallWaiterBtn);
+    updateButtonStyles(scanQrBtn);
+  });
+
+  // Присваиваем обработчик кнопке "Сканировать QR"
+  if (scanQrBtn) {
+    scanQrBtn.addEventListener('click', function () {
+      startQrScanner();
+    });
+  }
+
+  // Присваиваем обработчик кнопке "Вызвать официанта"
+  orderCallWaiterBtn.addEventListener('click', function () {
+    if (!orderCallWaiterBtn.disabled) {
+      document.getElementById('waiter-modal').style.display = 'block';
     }
   });
 
-  // Обработчик для кнопки "Сканировать QR‑code Wi‑Fi"
-  document.getElementById('scan-qr').addEventListener('click', function() {
-    startQrScanner();
-  });
-
-  // Обработчик для кнопки "Позвать официанта"
-  document.getElementById('order-call-waiter').addEventListener('click', function() {
-    // Вызывается функция вызова официанта с выбранным столом
-    callWaiter(selectedTable);
-  });
+  // ОБРАБОТЧИК ДЛЯ КНОПКИ "Назад" ИЗ QR-МОДАЛКИ (каждый раз обновляем!)
+  const qrScannerBackBtn = document.getElementById('qr-scanner-back');
+  if (qrScannerBackBtn) {
+    qrScannerBackBtn.addEventListener('click', function () {
+      document.getElementById('qr-scanner-modal').style.display = 'none';
+      orderModal.style.display = 'block';
+      stopQrScanner();
+    });
+  }
 }
 
 
@@ -522,10 +530,10 @@ function showOrdersModal() {
 
 
 
-    // Функция для запуска сканера QR‑кодов с использованием html5‑qrcode
-// Глобальная переменная для хранения экземпляра сканера
-let currentQrCodeScanner = null;
 
+
+
+// Функция для запуска сканера QR‑кодов
 function startQrScanner() {
   console.log("startQrScanner() вызвана");
 
@@ -541,85 +549,118 @@ function startQrScanner() {
     console.error("Элемент с id 'qr-reader' не найден.");
     return;
   }
-  // Очищаем контейнер и устанавливаем размеры
+
   qrReaderDiv.style.display = "block";
-  qrReaderDiv.style.width = "300px";
-  qrReaderDiv.style.height = "300px";
   qrReaderDiv.innerHTML = "";
-  console.log("Computed width:", getComputedStyle(qrReaderDiv).width);
 
-  setTimeout(function() {
-    Html5Qrcode.getCameras().then(devices => {
-      if (!devices || devices.length === 0) {
-        console.error("Камеры не найдены.");
-        return;
-      }
-      const cameraId = devices[0].id;
-      console.log("Используем камеру:", devices[0]);
+  // Получаем список камер
+  Html5Qrcode.getCameras().then(devices => {
+    if (!devices || devices.length === 0) {
+      console.error("Камеры не найдены.");
+      alert("Не найдено ни одной камеры.");
+      return;
+    }
 
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      currentQrCodeScanner = html5QrCode;
-      const config = { fps: 10, qrbox: 250 };
+    // Выбираем ЗАДНЮЮ камеру
+    let backCamera = devices.find(device => device.label.toLowerCase().includes("back"));
+    let selectedCameraId = backCamera ? backCamera.id : devices[0].id; // Если нет задней, берем первую
 
-      html5QrCode.start(
-        cameraId,
-        config,
-        (decodedText, decodedResult) => {
-          console.log("QR‑код прочитан:", decodedText);
-          // Ожидаемый QR‑код для Wi‑Fi сети кафе (логин: K&A, пароль: 15690024)
-          const expectedCode = "WIFI:S:K&A;T:WPA;P:15690024;;";
-          if (decodedText.trim() === expectedCode) {
-            alert("Подключение подтверждено!");
-            html5QrCode.stop().then(() => {
-              currentQrCodeScanner = null;
-              qrScannerModal.style.display = "none";
-              // Открываем окно вызова официанта (окно со столами)
-              const waiterModal = document.getElementById("waiter-modal");
-              if (waiterModal) {
-                // Скрываем кнопку сканирования QR‑кода в этом окне, оставляя кнопку "Позвать официанта"
-                const scanBtn = waiterModal.querySelector("#scan-qr");
-                if (scanBtn) {
-                  scanBtn.style.display = "none";
-                }
-                waiterModal.style.display = "block";
-              } else {
-                console.error("Элемент 'waiter-modal' не найден.");
-              }
-            }).catch(err => {
-              console.error("Ошибка остановки сканера:", err);
-            });
-          } else {
-            alert("Неверный QR‑код. Попробуйте снова.");
-          }
-        },
-        (errorMessage) => {
-          console.warn("Ошибка чтения QR:", errorMessage);
+    console.log("Используем камеру:", backCamera ? "Заднюю" : "Первую доступную");
+
+    // Запускаем QR-сканер
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    const config = { fps: 10, qrbox: 250 };
+
+    html5QrCode.start(
+      selectedCameraId,
+      config,
+      (decodedText, decodedResult) => {
+        console.log("QR‑код прочитан:", decodedText);
+
+        const expectedCode = "WIFI:S:K&A;T:WPA;P:15690024;;";
+        if (decodedText.trim() === expectedCode) {
+          alert("Подключение подтверждено!");
+          html5QrCode.stop().then(() => {
+            qrScannerModal.style.display = "none";
+          }).catch(err => console.error("Ошибка остановки сканера:", err));
+        } else {
+          alert("Неверный QR-код. Попробуйте снова.");
         }
-      ).catch(err => {
-        console.error("Ошибка запуска сканера QR‑кода:", err);
-      });
-    }).catch(err => {
-      console.error("Ошибка получения списка камер:", err);
-    });
-  }, 500);
+      },
+      (errorMessage) => {
+        console.warn("Ошибка чтения QR:", errorMessage);
+      }
+    ).catch(err => console.error("Ошибка запуска сканера QR-кода:", err));
+
+  }).catch(err => console.error("Ошибка получения списка камер:", err));
 }
- 
-    
 
 
 
 
 
-    
-
-    
-    
 
 
 
 
 
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function stopQrScanner() {
+  if (currentQrScanner) {
+    currentQrScanner.stop().then(() => {
+      console.log("Сканер остановлен.");
+      currentQrScanner = null;
+    }).catch(err => {
+      console.error("Ошибка остановки сканера: ", err);
+    });
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Функция обновления внешнего вида кнопок в зависимости от состояния disabled
+function updateButtonStyles(button) {
+  if (button.disabled) {
+    button.style.backgroundColor = '#cccccc';
+    button.style.cursor = 'not-allowed';
+  } else {
+    button.style.backgroundColor = '#FFA000';
+    button.style.cursor = 'pointer';
+  }
+}
+
 
 
 
