@@ -426,31 +426,54 @@ document.addEventListener("DOMContentLoaded", async function() {
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
 // Функция проверки подключения
 // Функция проверки подключения Wi‑Fi, возвращает Promise, который резолвится в true/false
-checkWiFiConnection().then(connected => {
-  if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
-    if (connected) {
-      // Если клиент находится в кафе – разрешаем вызов официанта (например, открываем модальное окно выбора стола)
-      orderCallWaiterBtn.disabled = false;
-      scanQrBtn.disabled = true;
-      wifiInstruction.style.display = 'none';
-      // При клике на "Вызвать официанта" открываем окно выбора стола
-      orderCallWaiterBtn.onclick = () => {
-        document.getElementById('waiter-modal').style.display = 'block';
-      };
-    } else {
-      // Если клиент не в сети кафе – делаем кнопку активной, но при клике перенаправляем на локальный сервер
-      orderCallWaiterBtn.disabled = false;
-      scanQrBtn.disabled = false; // Можно оставить кнопку сканирования активной или нет, на ваше усмотрение
-      wifiInstruction.style.display = 'inline-block';
-      wifiInstruction.textContent = "Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.";
-      orderCallWaiterBtn.onclick = () => {
-        window.location.href = "http://192.168.0.152:5001/";
-      };
+// Определяем функцию checkWiFiConnection внутри script.js
+function checkWiFiConnection() {
+  return fetch("http://192.168.0.152:5001/check-connection")
+    .then(response => response.json())
+    .then(data => {
+      console.log("Ответ от сервера:", data);
+      return data.connected;  // возвращает true или false
+    })
+    .catch(err => {
+      console.error("Ошибка проверки подключения:", err);
+      return false;
+    });
+}
+
+// Обработчик, который используется после загрузки DOM
+document.addEventListener("DOMContentLoaded", function() {
+  // Получаем нужные элементы
+  const orderCallWaiterBtn = document.getElementById('order-call-waiter');
+  const scanQrBtn = document.getElementById('scan-qr');
+  const wifiInstruction = document.getElementById('wifi-instruction');
+
+  // Вызываем функцию проверки подключения
+  checkWiFiConnection().then(connected => {
+    if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
+      if (connected) {
+        // Если клиент в сети Wi‑Fi кафе — разрешаем вызов официанта (открываем модальное окно)
+        orderCallWaiterBtn.disabled = false;
+        scanQrBtn.disabled = true;
+        wifiInstruction.style.display = 'none';
+        orderCallWaiterBtn.onclick = () => {
+          document.getElementById('waiter-modal').style.display = 'block';
+        };
+      } else {
+        // Если клиент не в сети кафе — показываем инструкцию и перенаправляем на локальный сервер при клике
+        orderCallWaiterBtn.disabled = false;  // делаем кнопку активной
+        scanQrBtn.disabled = false;
+        wifiInstruction.style.display = 'inline-block';
+        wifiInstruction.textContent = "Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.";
+        orderCallWaiterBtn.onclick = () => {
+          window.location.href = "http://192.168.0.152:5001/";
+        };
+      }
+      updateButtonStyles(orderCallWaiterBtn);
+      updateButtonStyles(scanQrBtn);
     }
-    updateButtonStyles(orderCallWaiterBtn);
-    updateButtonStyles(scanQrBtn);
-  }
+  });
 });
+
 
 
 
