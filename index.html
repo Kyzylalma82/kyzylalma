@@ -80,11 +80,24 @@
     <h2>Выберите стол</h2>
     <div class="tables-grid">
       <button class="table-button" data-table="1">1</button>
+      <button class="table-button" data-table="2">2</button>
+      <button class="table-button" data-table="3">3</button>
+      <button class="table-button" data-table="4">4</button>
+      <button class="table-button" data-table="5">5</button>
+      <button class="table-button" data-table="6">6</button>
+      <button class="table-button" data-table="7">7</button>
+      <button class="table-button" data-table="8">8</button>
+      <button class="table-button" data-table="9">9</button>
+      <button class="table-button" data-table="10">10</button>
+      <button class="table-button" data-table="11">11</button>
+      <button class="table-button" data-table="12">12</button>
+      <button class="table-button" data-table="13">13</button>
+      <button class="table-button" data-table="14">14</button>
       <!-- другие столы -->
     </div>
     <!-- Блок для QR-сканера и инструкции -->
     <div id="qr-section">
-      <button id="scan-qr" style="margin: 10px;">Сканировать QR‑code Wi‑Fi</button>
+    
     </div>
     <button id="call-waiter" class="waiter-button" disabled>Позвать официанта</button>
 
@@ -92,10 +105,12 @@
 </div>
 
 <!-- Модальное окно для сканирования QR-кода -->
-<div id="qr-scanner-modal" class="modal">
-  <div class="modal-content qr-scanner-content">
+<div id="qr-scanner-modal" class="modal" style="display:none;">
+  <div class="modal-content">
     <span id="qr-scanner-close" class="close">&times;</span>
     <div id="qr-reader"></div>
+
+    <button id="qr-scanner-back" class="styled-button">Назад</button>
   </div>
 </div>
 
