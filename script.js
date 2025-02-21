@@ -422,18 +422,13 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 
   // Функция для показа модального окна заказов
-// Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
-// Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
-// Функция проверки подключения
-// Функция проверки подключения Wi‑Fi, возвращает Promise, который резолвится в true/false
-// Определяем функцию checkWiFiConnection внутри script.js
-// Функция проверки подключения Wi‑Fi (возвращает Promise, который резолвится в true/false)
+// Функция проверки подключения Wi‑Fi (возвращает Promise с true/false)
 function checkWiFiConnection() {
   return fetch("http://192.168.0.152:5001/check-connection")
     .then(response => response.json())
     .then(data => {
       console.log("Ответ от сервера:", data);
-      return data.connected;  // true, если подключен, false если нет
+      return data.connected;  // true, если клиент подключён, false если нет
     })
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
@@ -472,7 +467,7 @@ function showOrdersModal() {
     html += `<div class="order-service" style="margin-top: 5px;">Обслуживание не включено</div>`;
 
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
-    // Кнопка "Вызвать официанта" – текст остаётся неизменным и кнопка всегда кликабельна
+    // Кнопка "Вызвать официанта" – текст остается неизменным
     html += `<button id="order-call-waiter" class="styled-button">Вызвать официанта</button>`;
     // Инструкция для пользователя (будет показана, если клиент не подключён к Wi‑Fi)
     html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: none;"></p>`;
@@ -485,15 +480,15 @@ function showOrdersModal() {
   orderModal.style.display = "block";
   addOrderActionListeners();
 
-  // Получаем элементы, которые мы только что создали
+  // Получаем элементы, которые только что созданы
   const orderCallWaiterBtn = document.getElementById('order-call-waiter');
   const scanQrBtn = document.getElementById('scan-qr');
   const wifiInstruction = document.getElementById('wifi-instruction');
 
-  // Всегда делаем кнопку "Вызвать официанта" активной
+  // Всегда делаем кнопку "Вызвать официанта" активной (без изменения ее названия)
   orderCallWaiterBtn.disabled = false;
 
-  // Обновляем интерфейс (например, показываем инструкцию и активируем кнопку сканирования)
+  // Обновляем UI на основе первоначальной проверки подключения
   checkWiFiConnection().then(connected => {
     if (orderCallWaiterBtn && scanQrBtn && wifiInstruction) {
       if (connected) {
@@ -511,13 +506,18 @@ function showOrdersModal() {
 
   // Обработчик клика для кнопки "Вызвать официанта"
   orderCallWaiterBtn.addEventListener('click', function () {
+    // Сохраняем заказы перед выполнением дальнейших действий
+    localStorage.setItem('savedOrders', JSON.stringify(orders));
+
     checkWiFiConnection().then(connected => {
       if (connected) {
-        // Если клиент подключён к Wi‑Fi, открываем модальное окно выбора стола
+        // Если клиент подключён к Wi‑Fi кафе, открываем модальное окно выбора стола
         document.getElementById('waiter-modal').style.display = 'block';
       } else {
-        // Если клиент не в сети, перенаправляем его на локальный сервер
-        window.location.href = "http://192.168.0.152:5001/";
+        // Если клиент не подключён, показываем сообщение под кнопкой
+        wifiInstruction.style.display = 'inline-block';
+        wifiInstruction.textContent = "Для вызова официанта, пожалуйста, подключитесь к Wi‑Fi кафе.";
+        // Здесь можно оставить кнопку "Сканировать QR‑code" активной для помощи подключения
       }
     });
   });
@@ -529,7 +529,7 @@ function showOrdersModal() {
     });
   }
 
-  // Обработчик для кнопки "Назад" в модальном окне QR‑сканера
+  // Обработчик для кнопки "Назад" из QR‑модалки
   const qrScannerBackBtn = document.getElementById('qr-scanner-back');
   if (qrScannerBackBtn) {
     qrScannerBackBtn.addEventListener('click', function () {
