@@ -1,3 +1,18 @@
+// Если сайт открыт на GitHub Pages, проверяем, есть ли локальный сервер
+if (window.location.hostname === "kyzylalma82.github.io") {
+  let localServer = "http://192.168.0.152:5001/";
+  
+  // Пробуем отправить тестовый запрос на локальный сервер
+  fetch(localServer + "check-connection", { method: "HEAD" })
+    .then(() => {
+      console.log("✅ Локальный сервер доступен. Перенаправляем клиента...");
+      window.location.href = localServer; // Переход на локальный сервер
+    })
+    .catch(() => {
+      console.log("❌ Локальный сервер недоступен, остаёмся на GitHub Pages.");
+    });
+}
+
 let currentQrScanner = null;
 
 document.addEventListener("DOMContentLoaded", async function() {
@@ -425,22 +440,28 @@ document.addEventListener("DOMContentLoaded", async function() {
 // Функция проверки подключения через AJAX (ожидается, что сервер вернет { connected: true/false })
 // Функция проверки подключения
 function checkWiFiConnection() {
-  fetch('http://192.168.0.152:5001/check-connection')
+  fetch("http://192.168.0.152:5001/check-connection")
     .then(response => response.json())
     .then(data => {
       console.log("Ответ от сервера:", data);
       
       if (data.connected) {
         console.log("✅ Клиент в кафе, активируем кнопку вызова официанта.");
-        document.getElementById('order-call-waiter').disabled = false;
+        document.getElementById("order-call-waiter").disabled = false;
+        
+        // Если сайт открыт с GitHub Pages, переключаемся на локальный сервер
+        if (window.location.hostname === "kyzylalma82.github.io") {
+          console.log("🌍 Переключаемся на локальный сервер...");
+          window.location.href = "http://192.168.0.152:5001/";
+        }
       } else {
         console.log("❌ Клиент НЕ в кафе, оставляем кнопку отключённой.");
-        document.getElementById('order-call-waiter').disabled = true;
+        document.getElementById("order-call-waiter").disabled = true;
       }
     })
     .catch(err => {
       console.error("Ошибка проверки подключения:", err);
-      document.getElementById('order-call-waiter').disabled = true;
+      document.getElementById("order-call-waiter").disabled = true;
     });
 }
 
@@ -486,7 +507,7 @@ function showOrdersModal() {
 
     html += `<div id="waiter-section" style="margin-top: 15px;">`;
     html += `<button id="order-call-waiter" disabled class="styled-button">Вызвать официанта</button>`;
-    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: inline-block;">Чтобы воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
+    html += `<p id="wifi-instruction" style="margin-left: 10px; font-size: 0.9rem; color: #ccc; display: inline-block;">Чтобы 1 воспользоваться этой функцией, необходимо подключиться к сети Wi‑Fi кафе.</p>`;
     html += `<button id="scan-qr" disabled class="styled-button">Сканировать QR‑code Wi‑Fi</button>`;
     html += `</div>`;
   }
@@ -1006,6 +1027,10 @@ function updateButtonStyles(button) {
   });
 }
 
+fetch("http://192.168.0.152:5001/check-connection", { method: "HEAD" })
+  .catch(() => {
+    document.getElementById("local-server-warning").style.display = "block";
+  });
 
 
   
