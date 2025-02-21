@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div id="local-server-warning" style="display:none; text-align:center; background-color: red; color: white; padding: 10px;">
+    Внимание: Вам нужно открыть сайт через Wi-Fi кафе, чтобы использовать все функции.
+  </div>
+  
   <div class="container">
     <!-- Баннер -->
     <div class="banner">
@@ -66,55 +70,55 @@
   </div>
 
   <!-- Модальное окно для заказов -->
-  <div id="order-modal" class="modal">
-    <div class="modal-content order-modal-content">
-      <span id="order-modal-close" class="close">&times;</span>
-      <div id="order-details"></div>
-    </div>
-  </div>
-
-<!-- Модальное окно для вызова официанта -->
-<div id="waiter-modal" class="modal">
-  <div class="modal-content waiter-modal-content">
-    <span id="waiter-modal-close" class="close">&times;</span>
-    <h2>Выберите стол</h2>
-    <div class="tables-grid">
-      <button class="table-button" data-table="1">1</button>
-      <button class="table-button" data-table="2">2</button>
-      <button class="table-button" data-table="3">3</button>
-      <button class="table-button" data-table="4">4</button>
-      <button class="table-button" data-table="5">5</button>
-      <button class="table-button" data-table="6">6</button>
-      <button class="table-button" data-table="7">7</button>
-      <button class="table-button" data-table="8">8</button>
-      <button class="table-button" data-table="9">9</button>
-      <button class="table-button" data-table="10">10</button>
-      <button class="table-button" data-table="11">11</button>
-      <button class="table-button" data-table="12">12</button>
-      <button class="table-button" data-table="13">13</button>
-      <button class="table-button" data-table="14">14</button>
-      <!-- другие столы -->
-    </div>
-    <!-- Блок для QR-сканера и инструкции -->
-    <div id="qr-section">
-    
-    </div>
-    <button id="call-waiter" class="waiter-button" disabled>Позвать официанта</button>
-
-  </div>
-</div>
-
-<!-- Модальное окно для сканирования QR-кода -->
-<div id="qr-scanner-modal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span id="qr-scanner-close" class="close">&times;</span>
-    <div id="qr-reader"></div>
-
-    <button id="qr-scanner-back" class="styled-button">Назад</button>
+<!-- Модальное окно для заказов -->
+<div id="order-modal" class="modal">
+  <div class="modal-content order-modal-content">
+    <span id="order-modal-close" class="close">&times;</span>
+    <div id="order-details"></div>
+    <!-- Кнопка для перехода на локальный сервер -->
+    <button id="goto-local-server" class="styled-button">Перейти на локальный сервер</button>
   </div>
 </div>
 
 
+  <!-- Модальное окно для вызова официанта -->
+  <div id="waiter-modal" class="modal">
+    <div class="modal-content waiter-modal-content">
+      <span id="waiter-modal-close" class="close">&times;</span>
+      <h2>Выберите стол</h2>
+      <div class="tables-grid">
+        <button class="table-button" data-table="1">1</button>
+        <button class="table-button" data-table="2">2</button>
+        <button class="table-button" data-table="3">3</button>
+        <button class="table-button" data-table="4">4</button>
+        <button class="table-button" data-table="5">5</button>
+        <button class="table-button" data-table="6">6</button>
+        <button class="table-button" data-table="7">7</button>
+        <button class="table-button" data-table="8">8</button>
+        <button class="table-button" data-table="9">9</button>
+        <button class="table-button" data-table="10">10</button>
+        <button class="table-button" data-table="11">11</button>
+        <button class="table-button" data-table="12">12</button>
+        <button class="table-button" data-table="13">13</button>
+        <button class="table-button" data-table="14">14</button>
+        <!-- другие столы -->
+      </div>
+      <!-- Блок для QR-сканера и инструкции -->
+      <div id="qr-section">
+      </div>
+      <button id="call-waiter" class="waiter-button" disabled>Позвать официанта</button>
+      
+    </div>
+  </div>
+
+  <!-- Модальное окно для сканирования QR-кода -->
+  <div id="qr-scanner-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span id="qr-scanner-close" class="close">&times;</span>
+      <div id="qr-reader"></div>
+      <button id="qr-scanner-back" class="styled-button">Назад</button>
+    </div>
+  </div>
 
   <!-- Firebase App (core SDK) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -122,11 +126,18 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <!-- html5-qrcode -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <!-- Подключаем библиотеку Socket.IO -->
-<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
-<!-- Ваш основной скрипт -->
-
+  <!-- Подключаем библиотеку socket.io -->
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
 
   <script src="script.js"></script>
+  
+  <!-- Добавляем обработчик для кнопки "Перейти на локальный сервер" -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('goto-local-server').addEventListener('click', function() {
+        window.location.href = "http://192.168.0.152:5001/";
+      });
+    });
+  </script>
 </body>
 </html>
