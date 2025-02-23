@@ -22,17 +22,28 @@ body {
 /* ===== БАННЕР ===== */
 .banner {
   width: 100%;
-  height: 220px;
+  min-height: 100px; /* Минимальная высота */
+  max-height: 160px; /* Максимальная высота */
+  height: auto;
   overflow: hidden;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .banner-img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  max-height: 160px;
+  object-fit: contain;
   display: block;
 }
+
+
+
+
+
+
 
 /* ===== ИНФО-КАРТОЧКА ===== */
 .info-card {
@@ -101,39 +112,40 @@ body {
   margin: 0 auto;
   padding: 0 20px 80px; /* нижний отступ, чтобы контент не закрывался таб-баром */
 }
-
 .info-buttons {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;              /* Используем всю ширину экрана */
+  width: 100%;
   z-index: 100;
   background-color: #2A2A2A;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px;
-  /* Отказываемся от transform и max-width, чтобы панель заняла всю ширину */
+  padding: 5px; /* уменьшенный отступ */
 }
 
 .info-btn {
-  flex: 1;                  /* Каждая кнопка занимает равную долю */
-  max-width: 100px;         /* При необходимости ограничим максимальную ширину */
-  margin: 0 5px;
+  flex: 1;
+  max-width: 80px; /* уменьшено максимальное значение */
+  margin: 0 3px;
   background-color: #444;
   color: #FFFFFF;
   border: 2px solid transparent;
-  border-radius: 10px;
-  padding: 10px 15px;
-  font-size: 0.9rem;
+  border-radius: 8px;
+  padding: 5px 8px; /* уменьшенные отступы */
+  font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.3s, color 0.3s, border 0.3s;
 }
 
-.info-btn:hover {
-  background-color: #FFA000;
-  color: #000;
+.tab-icon {
+  width: 30px; /* уменьшенный размер иконки */
+  height: 30px;
+  display: inline-block;
 }
+
+
 
 .info-btn.active {
   background-color: #444;
@@ -597,92 +609,42 @@ body {
   margin: 10px; /* отступы сохраняются */
 }
 
-/* Кнопка "Сканировать QR‑code Wi‑Fi" */
-#scan-qr {
-  background-color: #FFA000;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin: 10px; /* одинаковый отступ */
-}
 
-#scan-qr:hover {
-  background-color: #ffbf40;
-  margin: 10px;
-}
-#wifi-instruction {
-  margin-left: 10px;
-  font-size: 0.9rem;
-  color: #ccc;
-}
 
-/* Модальное окно для сканера QR-кода */
-#qr-scanner-modal {
-  display: none; /* Скрыто по умолчанию */
+
+
+.custom-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.8); /* затемненный фон */
-  z-index: 300; /* выше остальных элементов */
+  background: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон для всего экрана */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.qr-scanner-content {
-  position: relative;
-  margin: 5% auto;
-  padding: 20px;
-  width: 90%;
-  max-width: 400px;
-  background-color: #2A2A2A;
-  border-radius: 10px;
+.custom-overlay-content {
+  background: transparent;  /* Прозрачный фон, чтобы показывались только кнопки и текст */
+  padding: 20px 30px;
+  text-align: center;
 }
 
-.qr-scanner-content .close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 28px;
-  font-weight: bold;
-  color: #aaa;
-  cursor: pointer;
-}
-#qr-reader {
-  width: 100%;
-  max-width: 320px;
-  height: auto;
-  aspect-ratio: 1 / 1; /* Сделает квадрат */
-  margin: 0 auto;
-  background-color: #000; /* Чтобы не сливалось */
-  position: relative;
-  overflow: hidden; /* Важно, чтобы камера не вылезала */
-}
-
-#qr-reader > * {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-
-.styled-button {
+.custom-overlay-btn {
+  margin: 10px;
   padding: 10px 20px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   border: none;
-  border-radius: 8px;
-  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: #fff;
   transition: background-color 0.3s;
 }
-#qr-scanner-back {
-  margin-top: 10px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  background-color: #FFA000;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+
+.custom-overlay-btn:hover {
+  background-color: #45a049;
 }
+
