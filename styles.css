@@ -1,3 +1,15 @@
+@font-face {
+  font-family: 'BauhausHeavy';
+  src: url('/fonts/BauhausHeavyOutline-Regular.woff2') format('woff2'),
+       url('/fonts/BauhausHeavyOutline-Regular.woff') format('woff'),
+       url('/fonts/BauhausHeavyOutline-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
+
 /* Сброс базовых отступов */
 * {
   margin: 0;
@@ -22,24 +34,20 @@ body {
 /* ===== БАННЕР ===== */
 .banner {
   width: 100%;
-  min-height: 100px; /* Минимальная высота */
-  max-height: 160px; /* Максимальная высота */
-  height: auto;
+  height: 220px;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin-bottom: 50px; /* Увеличенный отступ */
+  border-radius: 15px; /* Закруглённые углы */
 }
 
+/* Также добавляем закругление изображения внутри */
 .banner-img {
   width: 100%;
-  height: auto;
-  max-height: 160px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover; /* Заполняет баннер без искажений */
   display: block;
+  border-radius: 10px; /* Закругляем углы */
 }
-
-
 
 
 
@@ -50,38 +58,46 @@ body {
   background-color: #2A2A2A;
   border-radius: 10px;
   margin: -30px auto 20px auto;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-  text-align: center;
+  margin-bottom: 10px; /* Уменьшаем нижний отступ */
+  padding: 10px;     /* уменьшенные внутренние отступы */
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.5); /* Красное свечение */
 }
 
-.info-card h1 {
-  font-size: 1.5rem;
-  margin-bottom: 5px;
-  color: #FFFFFF;
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.sub-info {
-  font-size: 0.9rem;
-  color: #BFBFBF;
-  margin-bottom: 10px;
+.logo-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.description {
-  font-size: 0.95rem;
-  color: #D0D0D0;
-  margin-bottom: 15px;
-  line-height: 1.4;
+.title-icon {
+  width: 250px !important;  /* Увеличиваем размер */
+  height: auto !important;
+  object-fit: contain; /* Сохраняет пропорции */
+  display: block; /* Убирает лишние отступы */
 }
 
-/* Фиксируем контейнер для поиска вверху экрана */
+
 .search-bar {
-  width: 100%;
-  padding: 10px;
-  /* Если больше не нужно фиксировать, уберите position: fixed */
-  /* position: fixed; */
-  /* Дополнительное оформление, если нужно */
+  flex: 1;
 }
+
+.search-bar input {
+  width: 50%;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  font-size: 1rem;
+  background-color: #333;
+  color: #fff;
+}
+
 
 
 /* Добавляем верхний отступ основному контейнеру, чтобы поиск не перекрывал контент */
@@ -150,7 +166,7 @@ body {
 .info-btn.active {
   background-color: #444;
   color: #FFFFFF;
-  border: 2px solid #FFA000;
+  border: 2px solid #e55755;
 }
 
 
@@ -175,14 +191,14 @@ body {
 }
 
 .info-btn:hover {
-  background-color: #FFA000;
+  background-color: #f6b21d;
   color: #000;
 }
 
 .info-btn.active {
   background-color: #444;
   color: #FFFFFF;
-  border: 2px solid #FFA000;
+  border: 2px solid #e55755;
 }
 
 /* ===== ОСНОВНЫЕ КАРТОЧКИ КАТЕГОРИЙ ===== */
@@ -195,7 +211,7 @@ body {
 
 .category-card {
   width: 100%;
-  height: 130px;
+  height: 150px;
   border-radius: 10px;
   background-size: cover;
   background-position: center;
@@ -229,6 +245,7 @@ body {
 /* ===== РАЗДЕЛ С БЛЮДАМИ ===== */
 .menu-items {
   margin: 0 auto 40px auto;
+  
   /* Уже есть display: none; по умолчанию */
   position: relative; /* чтобы можно было позиционировать кнопку внутри */
 }
@@ -256,7 +273,7 @@ body {
 }
 
 .back-btn:hover {
-  background-color: #FFA000;
+  background-color: #FFFFFF;
   color: #000;
 }
 
@@ -282,8 +299,8 @@ body {
 }
 
 .menu-item img {
-  width: 100%;
-  height: 150px;            /* Фиксированная высота для всех изображений */
+  width: 80%;
+  height: 100px;            /* Фиксированная высота для всех изображений */
   object-fit: contain;      /* Сохраняем пропорции, показывая всю картинку */
   object-position: center;  /* Центрирование изображения */
 }
@@ -295,22 +312,41 @@ body {
 
 /* Изменение размера и стиля заголовка блюда */
 .menu-item h3 {
-  font-size: 1rem;       /* немного меньше, чем раньше */
-  color: #FFA000;        /* оставляем яркий оранжевый цвет */
+  font-size: 0.75rem;  /* Уменьшаем размер текста */       /* немного меньше, чем раньше */
+  color: #FFFFFF;        /* оставляем яркий оранжевый цвет */
   margin-bottom: 5px;
   text-transform: uppercase;
 }
 
 /* Изменение стиля описания и цены */
 .menu-item p {
-  font-size: 0.85rem;    /* немного уменьшенный размер */
-  color: #ffffff;        /* белый цвет для читаемости */
+  font-size: 0.75rem;    /* немного уменьшенный размер */
+  color: #aaa;        /* белый цвет для читаемости */
   margin: 2px 0;
 }
 
 /* Если хотите добавить фон или градиент вместо однотонного фона */
 .menu-item {
   background: linear-gradient(135deg, rgba(42,42,42,0.85) 0%, rgba(30,30,30,0.85) 100%);
+}
+
+
+.dish-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px; /* немного отступа сверху */
+}
+
+.dish-weight {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+.dish-price {
+  font-size: 0.75rem;
+  font-weight: bold; /* делаем жирной */
+  color: #fff;
 }
 
 
@@ -359,7 +395,7 @@ body {
   width: 90%;
   max-width: 300px;
   border-radius: 10px;
-  color: #fff;
+  color: #aaa;
   box-sizing: border-box;
 }
 /* Если модальное окно заказов, можно задать аналогичные правила: */
@@ -393,222 +429,6 @@ body {
   text-decoration: none;
 }
 
-/* Стили для элементов заказа внутри модального окна */
-.order-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid #444;
-}
-
-.order-item:last-child {
-  border-bottom: none;
-}
-
-.order-item img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.order-item .order-info {
-  flex-grow: 1;
-}
-
-.order-item .order-info p {
-  margin: 2px 0;
-  font-size: 0.9rem;
-}
-
-.order-item button {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.order-item button:hover {
-  background-color: #FFA000;
-  color: #000;
-}
-
-/* Стили для кнопки "+" внутри модального окна блюда (для добавления в заказ)    */
-.add-to-order {
-  background-color: #FFA000;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-  color: #000;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 10px;
-}
-
-.add-to-order:hover {
-  background-color: #ffbf40;
-}
-/* Для модального окна (заказов) */
-/* Увеличение кнопок внутри модального окна заказов */
-#order-modal .order-actions button {
-  padding: 10px 15px !important;
-  font-size: 1.2rem !important;
-  border-radius: 8px !important;
-  margin: 5px !important;
-}
-
-/* Панель управления количеством, появляющаяся рядом с кнопкой "add-to-order" */
-.quantity-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 10px;
-}
-.quantity-controls button {
-  background-color: #FFA000;
-  border: none;
-  border-radius: 50%; /* тот же скругленный вид */
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-  color: #000;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.quantity-controls button:hover {
-  background-color: #ffbf40;
-}
-
-.quantity-controls span {
-  font-size: 1rem;
-  min-width: 20px;
-  text-align: center;
-  color: #fff;
-}
-
-.title-icon {
-  width: 40px;      /* Размер иконки, настройте по вкусу */
-  height: 40px;
-  margin-right: 10px;
-  vertical-align: middle; /* Чтобы иконка была по центру текста */
-}
-.title-icon {
-  width: 60px;      /* увеличенный размер */
-  height: 60px;
-  margin-right: 10px;
-  vertical-align: middle;
-}
-.info-card h1 {
-  font-size: 2.5rem;              /* Увеличенный размер заголовка */
-  font-family: 'Georgia', serif;  /* Можно заменить на любой красивый шрифт */
-  color: #FFA000;                 /* Яркий оранжевый цвет */
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Тень для объёма */
-  border-bottom: 2px solid #FFA000; /* Нижняя линия для акцента */
-  padding-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.tab-icon {
-  width: 40px;    /* Подберите нужный размер */
-  height: 40px;
-  display: inline-block;
-}
-.orders-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
-
-
-/* Стили для модального окна официанта */
-.waiter-modal-content {
-  max-width: 400px;
-  width: 90%;
-  padding: 20px;
-  margin: 10% auto;
-}
-
-/* Сетка столов */
-.tables-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-  gap: 10px;
-  margin: 20px 0;
-}
-
-/* Кнопки столов */
-.table-button {
-  background-color: #444;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 15px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.table-button:hover {
-  background-color: #FFA000;
-  color: #000;
-}
-
-.table-button.selected {
-  background-color: #FFA000;
-  color: #000;
-}
-
-/* Кнопка "Позвать официанта" */
-/* Кнопка "Позвать официанта" */
-#call-waiter {
-  background-color: #FFA000;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-#call-waiter:disabled {
-  background-color: #666;
-  cursor: not-allowed;
-}
-/* Кнопка "Позвать официанта" */
-#order-call-waiter {
-  background-color: #FFA000;  /* активное состояние */
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin: 10px; /* одинаковый отступ */
-}
-
-#order-call-waiter:disabled {
-  background-color: #cccccc; /* более светлый, серый для неактивного */
-  color: #777777;
-  cursor: not-allowed;
-  margin: 10px; /* отступы сохраняются */
-}
-
 
 
 
@@ -639,12 +459,12 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background-color: #4caf50;
+  background-color: #e55755;
   color: #fff;
   transition: background-color 0.3s;
 }
 
 .custom-overlay-btn:hover {
-  background-color: #45a049;
+  background-color: #f6b21d;
 }
 
