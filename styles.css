@@ -502,3 +502,14 @@ body {
   background-color: #f6b21d;
 }
 
+.error-message {
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачный черный фон */
+  padding: 10px;
+  border-radius: 10px; /* Более закругленные углы */
+  margin-top: 10px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+
