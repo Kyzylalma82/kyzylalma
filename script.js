@@ -28,13 +28,38 @@ document.addEventListener("DOMContentLoaded", async function() {
   
     if (qrMenuPlusBtn) {
       qrMenuPlusBtn.addEventListener('click', function() {
-        // Сохраняем заказы, если они есть
-        localStorage.setItem('savedOrders', JSON.stringify(orders));
-        window.location.href = "http://192.168.0.152:5001/";
-        console.log("Выбрана опция QR Menu +");
+        // Удаляем предыдущее сообщение, если оно было
+        const overlayContent = document.querySelector('.custom-overlay-content');
+        const existingMsg = overlayContent.querySelector('.error-message');
+        if (existingMsg) {
+          existingMsg.remove();
+        }
+    
+        // Функция-таймаут, которая за 7 сек вызывает reject
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("timeout")), 7000);
+        });
+    
+        // Пытаемся загрузить главную страницу локального сервера
+        const fetchPromise = fetch("http://192.168.0.152:5001/", { method: "GET", mode: "no-cors" });
+    
+        // Гонка между запросом и таймаутом
+        Promise.race([fetchPromise, timeoutPromise])
+          .then(() => {
+            localStorage.setItem('savedOrders', JSON.stringify(orders));
+            window.location.href = "http://192.168.0.152:5001/";
+          })
+          .catch(() => {
+            // Если сервер не ответил за 7 секунд или произошла ошибка,
+            // создаем элемент с сообщением и добавляем его в overlay под кнопками.
+            const errorMsg = document.createElement("p");
+            errorMsg.className = "error-message";
+            errorMsg.textContent = "Подключитесь к Wi‑Fi кафе, сканируйте QR‑код Wi‑Fi.";
+            overlayContent.appendChild(errorMsg);
+          });
       });
     }
-  }
+  }  
 
 
 
