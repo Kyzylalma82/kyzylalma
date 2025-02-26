@@ -225,111 +225,108 @@ setInterval(changeImage, 5000);
   function renderDishes(dishes) {
     const itemsList = document.querySelector('.items-list');
     if (itemsList) {
-        itemsList.innerHTML = "";
-        dishes.forEach(dish => {
-            const item = document.createElement('div');
-            item.classList.add('menu-item');
-
-            const mappedCategory = dish.categoryName 
-                ? mapCategoryName(dish.categoryName) 
-                : mapCategoryName(getCategoryNameFromId(dish.category_id));
-            item.dataset.category = mappedCategory;
-            if (mappedCategory === "pizza") {
-                item.dataset.subcategory = "pizza30";
-            }
-
-            let imageUrl = dish.image_path;
-            if (imageUrl) {
-                imageUrl = imageUrl.replace("C:\\cafe_app\\bludim\\", "images/");
-            } else {
-                imageUrl = "images/default-dish.jpg";
-            }
-
-            // Формируем карточку блюда
-            item.innerHTML = `
-                <img src="${imageUrl}" alt="${dish.name}">
-                <h3>${dish.name}</h3>
-                <div class="dish-info">
-                    <span class="dish-weight">${dish.weight} г</span>
-                    <span class="dish-price">${dish.price} сом</span>
-                </div>
-            `;
-
-            // Сохраняем данные в data-атрибуты
-            item.dataset.description = dish.description;
-            item.dataset.imageUrl = imageUrl;
-            item.dataset.id = dish.id;
-            item.dataset.weight = dish.weight;    
-            item.dataset.quantity = dish.quantity; 
-
-            itemsList.appendChild(item);
-
-            console.log(`Добавлено блюдо: ${dish.name} | mappedCategory: ${mappedCategory}`);
-        });
+      itemsList.innerHTML = "";
+      dishes.forEach(dish => {
+        const item = document.createElement('div');
+        item.classList.add('menu-item');
+  
+        // Определяем категорию
+        const mappedCategory = dish.categoryName 
+            ? mapCategoryName(dish.categoryName) 
+            : mapCategoryName(getCategoryNameFromId(dish.category_id));
+        item.dataset.category = mappedCategory;
+        if (mappedCategory === "pizza") {
+          item.dataset.subcategory = "pizza30";
+        }
+  
+        // Получаем URL изображения
+        let imageUrl = dish.image_path;
+        if (imageUrl) {
+          imageUrl = imageUrl.replace("C:\\cafe_app\\bludim\\", "images/");
+        } else {
+          imageUrl = "images/default-dish.jpg";
+        }
+  
+        // Формируем карточку блюда с блоком dish-info для веса и цены
+        item.innerHTML = `
+          <img src="${imageUrl}" alt="${dish.name}">
+          <h3>${dish.name}</h3>
+          <div class="dish-info">
+            <span class="dish-weight">${dish.weight} г</span>
+            <span class="dish-price">${dish.price} сом</span>
+          </div>
+        `;
+        
+        // Сохраняем данные в data-атрибутах для использования в модальном окне
+        item.dataset.description = dish.description;
+        item.dataset.imageUrl = imageUrl;
+        item.dataset.id = dish.id;
+        item.dataset.weight = dish.weight;
+        item.dataset.quantity = dish.quantity;
+        item.dataset.price = dish.price;  // Сохраняем цену
+  
+        itemsList.appendChild(item);
+        console.log(`Добавлено блюдо: ${dish.name} | mappedCategory: ${mappedCategory}`);
+      });
     }
-}
+  }
+  
 
   
 
-
-function addDishModalListeners() {
-  const itemsList = document.querySelector('.items-list');
-  const modal = document.getElementById('dish-modal');
-  const modalContent = document.getElementById('dish-details');
-  const modalClose = document.getElementById('modal-close');
-
-  if (!itemsList || !modal || !modalContent || !modalClose) {
-    console.error("Не найдены необходимые элементы: .items-list, dish-modal, dish-details, modal-close");
-    return;
-  }
-
-  // Делегирование клика на карточках блюда
-  itemsList.addEventListener("click", function(e) {
-    const item = e.target.closest(".menu-item");
-    if (!item) return;
-
-    // Получаем данные блюда из карточки, включая вес и количество, сохраненные в dataset
-    const dishName = item.querySelector("h3") ? item.querySelector("h3").textContent : "";
-    const dishDescription = item.dataset.description || "";
-    const dishPrice = item.querySelector("p") ? item.querySelector("p").textContent : "";
-    const dishImageHTML = item.querySelector("img") ? item.querySelector("img").outerHTML : "";
-    const dishWeight = item.dataset.weight || "";
-    const dishQuantity = item.dataset.quantity || "";
-
-    const dish = {
-      id: item.dataset.id || dishName,
-      name: dishName,
-      price: dishPrice.replace("Цена: ", "").replace(" сом", ""),
-      weight: dishWeight,
-      quantity: dishQuantity,
-      description: dishDescription,
-      imageUrl: item.dataset.imageUrl
-    };
-
-    modalContent.innerHTML = `
+  function addDishModalListeners() {
+    const itemsList = document.querySelector('.items-list');
+    const modal = document.getElementById('dish-modal');
+    const modalContent = document.getElementById('dish-details');
+    const modalClose = document.getElementById('modal-close');
+  
+    if (!itemsList || !modal || !modalContent || !modalClose) {
+      console.error("Не найдены необходимые элементы: .items-list, dish-modal, dish-details, modal-close");
+      return;
+    }
+  
+    // При клике на карточку блюда открываем модальное окно
+    itemsList.addEventListener("click", function(e) {
+      const item = e.target.closest(".menu-item");
+      if (!item) return;
+  
+      // Извлекаем данные из data-атрибутов
+      const dishName = item.querySelector("h3") ? item.querySelector("h3").textContent : "";
+      const dishDescription = item.dataset.description || "";
+      const dishPrice = item.dataset.price || "";
+      const dishImageHTML = item.querySelector("img") ? item.querySelector("img").outerHTML : "";
+      const dishWeight = item.dataset.weight || "";
+      const dishQuantity = item.dataset.quantity || "";
+  
+      // Формируем содержимое модального окна, выводим данные в нужном порядке
+      modalContent.innerHTML = `
       <h2>${dishName}</h2>
       ${dishImageHTML}
-      <p>${dishDescription}</p>
-      <p>Цена: ${dish.price} сом</p>
-      <p>Вес: ${dish.weight} г</p>
-      <p>Количество: ${dish.quantity} шт</p>
+      <p class="dish-description">${dishDescription}</p>
+      <div class="dish-info">
+        <span class="dish-weight">${dishWeight} г</span>
+        <span class="dish-quantity">${dishQuantity} шт</span>
+        <span class="dish-price">${dishPrice} сом</span>
+      </div>
     `;
-
-    modal.style.display = "block";
-  });
-
-  // Закрытие модального окна по кнопке "X"
-  modalClose.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  // Закрытие модального окна при клике вне его содержимого
-  window.addEventListener("click", (event) => {
-    if (event.target === modal) {
+    
+      
+      modal.style.display = "block";
+    });
+  
+    // Закрытие модального окна по кнопке "X"
+    modalClose.addEventListener("click", () => {
       modal.style.display = "none";
-    }
-  });
-}
+    });
+  
+    // Закрытие модального окна при клике вне его содержимого
+    window.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+  
 
   
   // Функция для показа блюд по выбранной категории
