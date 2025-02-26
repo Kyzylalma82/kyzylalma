@@ -17,18 +17,17 @@
 
     <!-- Инфо-карточка -->
     <div class="info-card">
-      <h1>
-        <img src="images/logo.png" alt="Icon" class="title-icon">
-        Кызыл-Алма
-      </h1>
-      <p class="sub-info">с. Чаек, ул. Э.Матыева, 82. тел. 5065323653</p>
-      <p class="description">Желаем приятно провести время</p>
-      <!-- Перемещаем поле поиска внутрь info-card -->
-      <div class="search-bar">
-        <input type="text" placeholder="Поиск...">
+      <div class="search-container">
+        <div class="logo-title">
+          <img src="images/logo.png" alt="Кызыл-Алма" class="title-icon">
+        </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Поиск...">
+        </div>
       </div>
     </div>
     
+
     <!-- Контейнер для динамически загружаемых карточек категорий -->
     <section class="categories-cards" id="categories-cards-container">
       <!-- Карточки категорий создаются через JavaScript -->
@@ -44,20 +43,21 @@
 
   <!-- Таб-бар (иконки) вынесем отдельно, чтобы он всегда оставался видимым -->
   <div class="info-buttons" id="info-buttons">
-    <button class="info-btn" data-action="categories" style="position: relative;">
+    <button class="info-btn" data-action="categories">
       <img src="images/home-icon.png" alt="Главное меню" class="tab-icon">
     </button>
-    <button class="info-btn" data-category="pizza" style="position: relative;">
+    <button class="info-btn" data-category="pizza">
       <img src="images/pizza-icon.png" alt="Пицца" class="tab-icon">
     </button>
-    <button class="info-btn" data-category="drinks" style="position: relative;">
+    <button class="info-btn" data-category="drinks">
       <img src="images/drinks-icon.png" alt="Напитки" class="tab-icon">
     </button>
-    <button class="info-btn" data-category="orders" style="position: relative;">
-      <img src="images/orders-icon.png" alt="Заказы" class="tab-icon">
-      <span class="orders-count">0</span>
+    <!-- Изменили data-category на "showcase" и alt текст на "Витрина" -->
+    <button class="info-btn" data-category="showcase">
+      <img src="images/hot-icon.png" alt="Витрина" class="tab-icon">
     </button>
   </div>
+  
 
   <!-- Модальное окно для блюд -->
   <div id="dish-modal" class="modal">
@@ -67,56 +67,10 @@
     </div>
   </div>
 
-  <!-- Модальное окно для заказов -->
-<!-- Модальное окно для заказов -->
-<div id="order-modal" class="modal">
-  <div class="modal-content order-modal-content">
-    <span id="order-modal-close" class="close">&times;</span>
-    <div id="order-details"></div>
-    <!-- Кнопка для перехода на локальный сервер -->
-    <button id="goto-local-server" class="styled-button">Перейти на локальный сервер</button>
-  </div>
-</div>
 
 
-  <!-- Модальное окно для вызова официанта -->
-  <div id="waiter-modal" class="modal">
-    <div class="modal-content waiter-modal-content">
-      <span id="waiter-modal-close" class="close">&times;</span>
-      <h2>Выберите стол</h2>
-      <div class="tables-grid">
-        <button class="table-button" data-table="1">1</button>
-        <button class="table-button" data-table="2">2</button>
-        <button class="table-button" data-table="3">3</button>
-        <button class="table-button" data-table="4">4</button>
-        <button class="table-button" data-table="5">5</button>
-        <button class="table-button" data-table="6">6</button>
-        <button class="table-button" data-table="7">7</button>
-        <button class="table-button" data-table="8">8</button>
-        <button class="table-button" data-table="9">9</button>
-        <button class="table-button" data-table="10">10</button>
-        <button class="table-button" data-table="11">11</button>
-        <button class="table-button" data-table="12">12</button>
-        <button class="table-button" data-table="13">13</button>
-        <button class="table-button" data-table="14">14</button>
-        <!-- другие столы -->
-      </div>
-      <!-- Блок для QR-сканера и инструкции -->
-      <div id="qr-section">
-      </div>
-      <button id="call-waiter" class="waiter-button" disabled>Позвать официанта</button>
-      
-    </div>
-  </div>
 
-  <!-- Модальное окно для сканирования QR-кода -->
-  <div id="qr-scanner-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span id="qr-scanner-close" class="close">&times;</span>
-      <div id="qr-reader"></div>
-      <button id="qr-scanner-back" class="styled-button">Назад</button>
-    </div>
-  </div>
+
 
   <!-- Firebase App (core SDK) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -137,5 +91,15 @@
       });
     });
   </script>
+  <div id="overlay" class="custom-overlay">
+    <div class="custom-overlay-content">
+      <h2>Выберите режим</h2>
+      <button id="qr-menu" class="custom-overlay-btn">QR Menu</button>
+      <button id="qr-menu-plus" class="custom-overlay-btn">QR Menu +</button>
+    </div>
+  </div>
+  
+  <button id="goto-local-server" style="display: none;">Перейти на локальный сервер</button>
+
 </body>
 </html>
