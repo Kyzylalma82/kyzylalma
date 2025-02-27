@@ -37,11 +37,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     
         // Функция-таймаут, которая за 7 сек вызывает reject
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("timeout")), 7000);
+          setTimeout(() => reject(new Error("timeout")), 10000);
         });
     
         // Пытаемся загрузить главную страницук локального сервера
-        const fetchPromise = fetch("http://192.168.0.152:5001/", { method: "GET", mode: "no-cors" });
+        const fetchPromise = fetch("http://192.168.0.152:5001/", { method: "GET" });
+
     
         // Гонка между запросом и таймаутом
         Promise.race([fetchPromise, timeoutPromise])
