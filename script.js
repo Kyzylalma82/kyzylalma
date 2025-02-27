@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   
     if (qrMenuPlusBtn) {
       qrMenuPlusBtn.addEventListener('click', function() {
-        // Удаляем предыдущее сообщение, если оно было
+        // Удаляем предыдущее сообщение,к если оно было
         const overlayContent = document.querySelector('.custom-overlay-content');
         const existingMsg = overlayContent.querySelector('.error-message');
         if (existingMsg) {
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           setTimeout(() => reject(new Error("timeout")), 7000);
         });
     
-        // Пытаемся загрузить главную страницу локального сервера
+        // Пытаемся загрузить главную страницук локального сервера
         const fetchPromise = fetch("http://192.168.0.152:5001/", { method: "GET", mode: "no-cors" });
     
         // Гонка между запросом и таймаутом
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           })
           .catch(() => {
             // Если сервер не ответил за 7 секунд или произошла ошибка,
-            // создаем элемент с сообщением и добавляем его в overlay под кнопками.
+            // создаем элемент с сообщением и добавляем егок в overlay под кнопками.
             const errorMsg = document.createElement("p");
             errorMsg.className = "error-message";
             errorMsg.textContent = "Подключитесь к Wi‑Fi кафе, сканируйте QR‑код Wi‑Fi.";
@@ -78,7 +78,7 @@ function changeImage() {
     setTimeout(() => {
         currentIndex = (currentIndex + 1) % images.length;
         bannerImg.src = images[currentIndex];
-        bannerImg.style.opacity = "1"; // Появление новой картинки
+        bannerImg.style.opacity = "1"; // Появлениек новой картинки
     }, 500); // Делаем задержку перед сменой
 }
 
@@ -168,7 +168,7 @@ setInterval(changeImage, 5000);
   // ------------------ Инициализация Firebase ------------------
   // Убедитесь, что в HTML подключены скрипты:
   // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  // <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestoreк.js"></script>
   const firebaseConfig = {
     apiKey: "AIzaSyCBrM43FbbmUGkb3hg1c7TvATWE5nG843Q",
     authDomain: "qrmenu-8de3b.firebaseapp.com",
@@ -190,7 +190,7 @@ setInterval(changeImage, 5000);
       let categories = [];
       snapshot.forEach(doc => {
         let data = doc.data();
-        data.id = doc.id; // используем id документа
+        data.id = doc.id; // используем idк документа
         categories.push(data);
       });
       console.log('Категории из Firestore:', categories);
@@ -222,7 +222,7 @@ setInterval(changeImage, 5000);
     if (container) {
       container.innerHTML = "";
       categories.forEach(cat => {
-        // Заполняем маппинг: id -> имя
+        // Заполняем маппинг: idк -> имя
         categoriesMap[cat.id] = cat.name;
         const card = document.createElement('div');
         card.classList.add('category-card');
@@ -255,7 +255,7 @@ setInterval(changeImage, 5000);
         const item = document.createElement('div');
         item.classList.add('menu-item');
   
-        // Определяем категорию
+        // Определяемк категорию
         const mappedCategory = dish.categoryName 
             ? mapCategoryName(dish.categoryName) 
             : mapCategoryName(getCategoryNameFromId(dish.category_id));
@@ -282,7 +282,7 @@ setInterval(changeImage, 5000);
           </div>
         `;
         
-        // Сохраняем данные в data-атрибутах для использования в модальном окне
+        // Сохраняем данные вк data-атрибутах для использования в модальном окне
         item.dataset.description = dish.description;
         item.dataset.imageUrl = imageUrl;
         item.dataset.id = dish.id;
@@ -323,7 +323,7 @@ setInterval(changeImage, 5000);
       const dishWeight = item.dataset.weight || "";
       const dishQuantity = item.dataset.quantity || "";
   
-      // Формируем содержимое модального окна, выводим данные в нужном порядке
+      // Формируем содержимое модальногок окна, выводим данные в нужном порядке
       modalContent.innerHTML = `
       <h2>${dishName}</h2>
       ${dishImageHTML}
@@ -339,7 +339,7 @@ setInterval(changeImage, 5000);
       modal.style.display = "block";
     });
   
-    // Закрытие модального окна по кнопке "X"
+    // Закрытие модального окнка по кнопке "X"
     modalClose.addEventListener("click", () => {
       modal.style.display = "none";
     });
@@ -354,7 +354,7 @@ setInterval(changeImage, 5000);
   
 
   
-  // Функция для показа блюд по выбранной категории
+  // Функция для показа блюд по выбраннойк категории
   function showMenuItems(category, subcategory = "") {
     const infoCard = document.querySelector('.info-card');
     if (infoCard) infoCard.style.display = "none";
@@ -398,7 +398,7 @@ setInterval(changeImage, 5000);
       <button class="increment">+</button>
     `;
     
-    // Заменяем кнопку "add-to-order" непосредственно на панель управления:
+    // Заменяем кнопку "add-to-order"к непосредственно на панель управления:
     item.replaceChild(quantityControls, addBtn);
   
     const incrementBtn = quantityControls.querySelector('.increment');
@@ -424,7 +424,7 @@ setInterval(changeImage, 5000);
           quantitySpan.textContent = existing.quantity;
         } else {
           orders = orders.filter(o => o.id !== dish.id);
-          // Возвращаем панель обратно в виде кнопки, сохраняя позицию
+          // Возвращаем панель обратно вк виде кнопки, сохраняя позицию
           const newAddBtn = createAddToOrderButton(item);
           item.replaceChild(newAddBtn, quantityControls);
         }
@@ -434,7 +434,7 @@ setInterval(changeImage, 5000);
   }
   
 
-  // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
+  // Функция для добавления обработчиков длкя всех кнопок "add-to-order" в карточках блюд
   function addAddToOrderListeners() {
     const addButtons = document.querySelectorAll('.menu-item .add-to-order');
     addButtons.forEach(btn => {
@@ -506,7 +506,7 @@ setInterval(changeImage, 5000);
     });
   }
 
-  // Функция для добавления обработчиков для кнопок поиска
+  // Функция для добавления обработчиков дляк кнопок поиска
   function addSearchFunctionality() {
     const searchInput = document.querySelector('.search-bar input');
     if (!searchInput) return;
@@ -531,7 +531,7 @@ setInterval(changeImage, 5000);
   
 
 
-  // Функция для обработчиков info-кнопок (например, верхнего меню)
+  // Функция для обработчиков info-кнопок (кнапример, верхнего меню)
   function addInfoButtonListeners() {
     const infoButtons = document.querySelectorAll('.info-btn');
     infoButtons.forEach(btn => {
@@ -563,7 +563,7 @@ setInterval(changeImage, 5000);
 subscribeCategories();
 subscribeDishes();
 addInfoButtonListeners();
-addDishModalListeners();  // <-- Этот вызов должен быть здесь!
+addDishModalListeners();  // <-- Этот вызовк должен быть здесь!
 addAddToOrderListeners();
 addSearchFunctionality();
 addInfoButtonListeners();
