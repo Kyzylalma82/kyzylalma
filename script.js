@@ -41,13 +41,13 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
     
         // Пытаемся загрузить главную страницу локального сервера
-        const fetchPromise = fetch("http://127.0.0.1:5001/", { method: "GET", mode: "no-cors" });
+        const fetchPromise = fetch("http://192.168.0.152:5001/", { method: "GET", mode: "no-cors" });
     
         // Гонка между запросом и таймаутом
         Promise.race([fetchPromise, timeoutPromise])
           .then(() => {
             localStorage.setItem('savedOrders', JSON.stringify(orders));
-            window.location.href = "http://127.0.0.1:5001/";
+            window.location.href = "http://192.168.0.152:5001/";
           })
           .catch(() => {
             // Если сервер не ответил за 7 секунд или произошла ошибка,
