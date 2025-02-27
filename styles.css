@@ -502,13 +502,28 @@ body {
   background-color: #f6b21d;
 }
 
-.error-message {
-  color: #fff;
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Сообщение под кнопкой; даже если оно пустое, занимает место */
+.wifi-message {
+  margin-top: 5px;
+  min-height: 40px; /* Минимальная высота для выравнивания */
+  width: 90%;
+  color: #e55755;
   background-color: rgba(0, 0, 0, 0.6); /* Полупрозрачный черный фон */
   padding: 10px;
-  border-radius: 10px; /* Более закругленные углы */
-  margin-top: 10px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 0.8rem; /* уменьшенный размер текста */
   text-align: center;
 }
 
