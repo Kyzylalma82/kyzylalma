@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     if (qrMenuPlusBtn) {
       qrMenuPlusBtn.addEventListener('click', function(e) {
-        window.location.href = "http://kyzylalma/";
+        window.location.href = "http://192.168.0.152:5001";
       });
     }
     
