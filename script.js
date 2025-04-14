@@ -5,6 +5,22 @@ let orders = [];
 
 // Обработчик DOMContentLoaded
 document.addEventListener("DOMContentLoaded", async function() {
+  // Добавляем обработчик для переключения темы
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('day-theme');
+      // Сохраняем выбор темы в localStorage
+      localStorage.setItem('theme', document.body.classList.contains('day-theme') ? 'day' : 'night');
+    });
+
+    // Загружаем сохранённую тему при загрузке страницы
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'day') {
+      document.body.classList.add('day-theme');
+    }
+  }
+
   // Обработчики для оверлея
   const overlay = document.getElementById('overlay');
   if (overlay) {
@@ -25,40 +41,34 @@ document.addEventListener("DOMContentLoaded", async function() {
         }, 500);
       });
     }
-  
-
-
 
     if (qrMenuPlusBtn) {
       qrMenuPlusBtn.addEventListener('click', function(e) {
         window.location.href = "http://192.168.0.152:5001/";
       });
     }
-    
   }       
-
 
   const images = [
     "images/banner1.jpg",
     "images/banner2.jpg",
     "images/banner3.jpg",
     "images/banner4.jpg"
-];
+  ];
 
-let currentIndex = 0;
-const bannerImg = document.querySelector(".banner-img");
+  let currentIndex = 0;
+  const bannerImg = document.querySelector(".banner-img");
 
-function changeImage() {
+  function changeImage() {
     bannerImg.style.opacity = "0"; // Исчезновение картинки
     setTimeout(() => {
-        currentIndex = (currentIndex + 1) % images.length;
-        bannerImg.src = images[currentIndex];
-        bannerImg.style.opacity = "1"; // Появление новой картинки
+      currentIndex = (currentIndex + 1) % images.length;
+      bannerImg.src = images[currentIndex];
+      bannerImg.style.opacity = "1"; // Появление новой картинки
     }, 500); // Делаем задержку перед сменой
-}
+  }
 
-setInterval(changeImage, 5000);
-
+  setInterval(changeImage, 5000);
 
   // Далее – ваш код для сайта
   const categoryImages = {
@@ -81,14 +91,12 @@ setInterval(changeImage, 5000);
     };
     return mapping[name.toLowerCase()] || name.toLowerCase();
   }
-  
 
   let categoriesMap = {};
   
   function getCategoryNameFromId(category_id) {
     return categoriesMap[category_id] || "unknown";
   }
-
 
   const waiterClose = document.getElementById('waiter-modal-close');
   if (waiterClose) {
@@ -270,9 +278,6 @@ setInterval(changeImage, 5000);
       });
     }
   }
-  
-
-  
 
   function addDishModalListeners() {
     const itemsList = document.querySelector('.items-list');
@@ -298,36 +303,48 @@ setInterval(changeImage, 5000);
       const dishWeight = item.dataset.weight || "";
       const dishQuantity = item.dataset.quantity || "";
   
-      // Формируем содержимое модального окна, выводим данные в нужном порядке
+      // Формируем содержимое модального окна, добавляем кнопку "Закрыть"
       modalContent.innerHTML = `
-      <h2>${dishName}</h2>
-      ${dishImageHTML}
-      <p class="dish-description">${dishDescription}</p>
-      <div class="dish-info">
-        <span class="dish-weight">${dishWeight} г</span>
-        <span class="dish-quantity">${dishQuantity} шт</span>
-        <span class="dish-price">${dishPrice} сом</span>
-      </div>
-    `;
-    
+        <h2>${dishName}</h2>
+        ${dishImageHTML}
+        <p class="dish-description">${dishDescription}</p>
+        <div class="dish-info">
+          <span class="dish-weight">${dishWeight} г</span>
+          <span class="dish-quantity">${dishQuantity} шт</span>
+          <span class="dish-price">${dishPrice} сом</span>
+        </div>
+        <div class="modal-controls">
+          <button id="dish-modal-close-footer" class="close-modal-footer">Закрыть</button>
+        </div>
+      `;
       
       modal.style.display = "block";
+      document.body.classList.add('modal-open'); // Добавляем класс при открытии модального окна
+
+      // Добавляем обработчик для кнопки "Закрыть" внизу
+      const dishModalCloseFooter = modalContent.querySelector("#dish-modal-close-footer");
+      if (dishModalCloseFooter) {
+        dishModalCloseFooter.addEventListener("click", () => {
+          modal.style.display = "none";
+          document.body.classList.remove('modal-open'); // Удаляем класс при закрытии
+        });
+      }
     });
   
     // Закрытие модального окна по кнопке "X"
     modalClose.addEventListener("click", () => {
       modal.style.display = "none";
+      document.body.classList.remove('modal-open'); // Удаляем класс при закрытии
     });
   
     // Закрытие модального окна при клике вне его содержимого
     window.addEventListener("click", (event) => {
       if (event.target === modal) {
         modal.style.display = "none";
+        document.body.classList.remove('modal-open'); // Удаляем класс при закрытии
       }
     });
   }
-  
-
   
   // Функция для показа блюд по выбранной категории
   function showMenuItems(category, subcategory = "") {
@@ -345,6 +362,41 @@ setInterval(changeImage, 5000);
     });
   }
 
+  // Функция для создания кнопки "Добавить в заказ"
+  function createAddToOrderButton(item) {
+    const btn = document.createElement('button');
+    btn.classList.add('add-to-order');
+    btn.textContent = "+";
+    console.log("Создана кнопка + для элемента:", item);
+    return btn;
+  }
+
+  // Функция для добавления блюда в корзину
+  function addToOrder(dish) {
+    const existing = orders.find(o => o.id === dish.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      orders.push({ ...dish, quantity: 1 });
+    }
+    console.log("Блюдо добавлено в корзину:", dish);
+    console.log("Текущая корзина:", orders);
+  }
+
+  // Функция для обновления количества заказов в UI
+  function updateOrdersCount() {
+    const ordersButton = document.querySelector('.info-btn[data-category="orders"]');
+    if (ordersButton) {
+      const total = orders.reduce((acc, order) => acc + (order.quantity || 0), 0);
+      let countSpan = ordersButton.querySelector('.orders-count');
+      if (!countSpan) {
+        countSpan = document.createElement('span');
+        countSpan.classList.add('orders-count');
+        ordersButton.appendChild(countSpan);
+      }
+      countSpan.textContent = `${total}`;
+    }
+  }
 
   // Функция для обработки клика по кнопке "add-to-order"
   function handleAddToOrderClick(item, addBtn) {
@@ -353,10 +405,8 @@ setInterval(changeImage, 5000);
     const dish = {
       id: item.dataset.id || item.querySelector('h3').textContent,
       name: item.querySelector('h3').textContent,
-      price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-      weight: item.querySelector('p:nth-of-type(2)') 
-                ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
-                : "",
+      price: item.querySelector('.dish-price').textContent.replace(" сом", ""),
+      weight: item.dataset.weight || "",
       quantity: 1,
       description: item.dataset.description || "",
       imageUrl: item.dataset.imageUrl
@@ -407,7 +457,6 @@ setInterval(changeImage, 5000);
       }
     });
   }
-  
 
   // Функция для добавления обработчиков для всех кнопок "add-to-order" в карточках блюд
   function addAddToOrderListeners() {
@@ -421,10 +470,8 @@ setInterval(changeImage, 5000);
         const dish = {
           id: item.dataset.id || item.querySelector('h3').textContent,
           name: item.querySelector('h3').textContent,
-          price: item.querySelector('p').textContent.replace("Цена: ", "").replace(" сом", ""),
-          weight: item.querySelector('p:nth-of-type(2)')
-                  ? item.querySelector('p:nth-of-type(2)').textContent.match(/Вес:\s*(\d+)/)?.[1] || ""
-                  : "",
+          price: item.querySelector('.dish-price').textContent.replace(" сом", ""),
+          weight: item.dataset.weight || "",
           quantity: 1,
           description: item.dataset.description || "",
           imageUrl: item.dataset.imageUrl
@@ -503,8 +550,6 @@ setInterval(changeImage, 5000);
       });
     });
   }
-  
-
 
   // Функция для обработчиков info-кнопок (например, верхнего меню)
   function addInfoButtonListeners() {
@@ -532,19 +577,11 @@ setInterval(changeImage, 5000);
       });
     });
   }
-  
 
-
-subscribeCategories();
-subscribeDishes();
-addInfoButtonListeners();
-addDishModalListeners();  // <-- Этот вызов должен быть здесь!
-addAddToOrderListeners();
-addSearchFunctionality();
-addInfoButtonListeners();
-
+  subscribeCategories();
+  subscribeDishes();
+  addInfoButtonListeners();
+  addDishModalListeners();  // Этот вызов должен быть здесь!
+  addAddToOrderListeners();
+  addSearchFunctionality();
 });
-
-
-
-
