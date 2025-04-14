@@ -1,5 +1,3 @@
-
-
 /* Сброс базовых отступов */
 * {
   margin: 0;
@@ -11,7 +9,7 @@
 .container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 20px 80px; /* нижний отступ, чтобы контент не закрывался таб-баром */
 }
 
 /* Фон страницы и шрифты */
@@ -19,6 +17,177 @@ body {
   font-family: Arial, sans-serif;
   background-color: #1C1C1C;
   color: #FFFFFF;
+  transition: background-color 0.3s, color 0.3s; /* Плавный переход для смены темы */
+}
+
+/* Дневная тема */
+body.day-theme {
+  background-color: #F5F5F5; /* Светлый фон */
+  color: #000000; /* Чёрный текст */
+}
+
+/* Дневная тема для карточек категорий */
+body.day-theme .category-card .overlay {
+  background: rgba(0, 0, 0, 0.4); /* Оставляем затемнение как есть */
+  color: #FFFFFF; /* Белый текст */
+}
+
+/* Дневная тема для карточек блюд */
+body.day-theme .menu-item {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 240, 0.9) 100%); /* Светлый градиент */
+  color: #000000; /* Чёрный текст */
+  border: 1px solid #CCCCCC; /* Добавляем обводку для лучшей видимости границ */
+}
+
+/* Дневная тема для текста в карточках блюд */
+body.day-theme .menu-item h3 {
+  color: #000000; /* Чёрный текст для заголовков */
+}
+
+body.day-theme .menu-item p,
+body.day-theme .dish-weight,
+body.day-theme .dish-quantity,
+body.day-theme .dish-price {
+  color: #333333; /* Тёмно-серый текст для описания и данных */
+}
+
+body.day-theme .dish-description {
+  color: #666666; /* Более светлый серый для описания */
+}
+
+/* Дневная тема для модальных окон */
+body.day-theme .modal-content {
+  background-color: #FFFFFF; /* Белый фон */
+  color: #000000; /* Чёрный текст */
+}
+
+/* Дневная тема для текста в модальных окнах */
+body.day-theme .modal-content p {
+  color: #333333; /* Тёмно-серый текст */
+}
+
+/* Дневная тема для таб-бара */
+body.day-theme .info-buttons {
+  background-color: #E0E0E0; /* Светлый фон */
+}
+
+/* Дневная тема для кнопок таб-бара */
+body.day-theme .info-btn {
+  background-color: #FFFFFF; /* Белый фон */
+  color: #000000; /* Чёрный текст */
+}
+
+/* Дневная тема для активной кнопки таб-бара */
+body.day-theme .info-btn.active {
+  background-color: #FFFFFF !important; /* Белый фон */
+  color: #000000 !important;
+  border: 2px solid #e55755 !important; /* Только красная обводка */
+}
+
+/* Убираем жёлтый фон для активной кнопки в дневной теме при наведении */
+body.day-theme .info-btn.active:hover {
+  background-color: #FFFFFF !important; /* Оставляем белый фон */
+  color: #000000 !important;
+}
+
+/* Дневная тема для info-card */
+body.day-theme .info-card {
+  background-color: #E0E0E0; /* Светлый фон */
+}
+
+/* Дневная тема для поля поиска */
+body.day-theme .search-bar input {
+  background-color: #FFFFFF; /* Белый фон */
+  color: #000000; /* Чёрный текст */
+}
+
+/* Дневная тема для оверлея */
+body.day-theme .custom-overlay-content h2 {
+  color: #FFFFFF; /* Белый текст для читаемости на тёмном фоне */
+}
+
+/* Дневная тема для кнопок оверлея */
+body.day-theme .custom-overlay-btn {
+  background-color: #e55755; /* Оставляем красный цвет */
+  color: #FFFFFF; /* Белый текст */
+}
+
+/* Дневная тема для сообщения о Wi-Fi */
+body.day-theme .wifi-message {
+  color: #e55755; /* Оставляем красный цвет */
+  background-color: rgba(255, 255, 255, 0.8); /* Светлый полупрозрачный фон */
+}
+
+/* Переключатель темы */
+.theme-toggle {
+  position: fixed; /* Фиксированное положение */
+  top: 10px; /* Отступ сверху */
+  right: 10px; /* Отступ справа */
+  width: 100px; /* Ширина переключателя */
+  height: 40px; /* Высота переключателя */
+  background: #333; /* Тёмный фон для ночного режима */
+  border-radius: 20px; /* Закруглённые углы */
+  cursor: pointer;
+  z-index: 1000; /* Выше баннера и других элементов */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px; /* Отступы для иконок */
+  transition: background 0.3s;
+}
+
+/* Скрываем переключатель темы, когда оверлей или модальное окно открыты */
+body.modal-open .theme-toggle {
+  display: none;
+}
+
+/* Дневной режим — светлый фон */
+body.day-theme .theme-toggle {
+  background: #D3D3D3; /* Светлый фон для дневного режима */
+}
+
+/* Иконки луны и солнца */
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.moon-icon {
+  background-image: url('images/moon-icon.png'); /* Иконка луны */
+}
+
+.sun-icon {
+  background-image: url('images/sun-icon.png'); /* Иконка солнца */
+}
+
+/* Слайдер */
+.theme-slider {
+  position: absolute;
+  width: 30px; /* Размер слайдера */
+  height: 30px;
+  background: #666; /* Цвет слайдера */
+  border-radius: 50%; /* Круглый слайдер */
+  transition: transform 0.3s ease;
+  /* Добавляем иконку через background-image */
+  background-image: url('images/moon-icon.png'); /* Иконка луны для ночного режима */
+  background-size: 20px 20px; /* Размер иконки */
+  background-position: center;
+  background-repeat: no-repeat;
+  left: 5px; /* Начальная позиция */
+}
+
+/* Состояние для дневной темы */
+body.day-theme .theme-toggle .theme-slider {
+  transform: translateX(60px); /* Слайдер сдвигается вправо */
+  background-image: url('images/sun-icon.png'); /* Иконка солнца для дневного режима */
+}
+
+/* Состояние для ночной темы */
+body:not(.day-theme) .theme-toggle .theme-slider {
+  transform: translateX(0); /* Слайдер в исходном положении */
+  background-image: url('images/moon-icon.png'); /* Иконка луны для ночного режима */
 }
 
 /* ===== БАННЕР ===== */
@@ -38,10 +207,6 @@ body {
   display: block;
   border-radius: 10px; /* Закругляем углы */
 }
-
-
-
-
 
 /* ===== ИНФО-КАРТОЧКА ===== */
 .info-card {
@@ -72,31 +237,9 @@ body {
   display: block; /* Убирает лишние отступы */
 }
 
-
 .search-bar {
   flex: 1;
 }
-
-.search-bar input {
-  width: 50%;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  outline: none;
-  font-size: 1rem;
-  background-color: #333;
-  color: #fff;
-}
-
-
-
-/* Добавляем верхний отступ основному контейнеру, чтобы поиск не перекрывал контент */
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 70px 20px 0; /* 70px подбирается в зависимости от высоты поля поиска */
-}
-
 
 .search-bar input {
   width: 100%;
@@ -109,15 +252,7 @@ body {
   color: #fff;             /* цвет текста, если фон тёмный */
 }
 
-
 /* ===== КНОПКИ info-btn ===== */
-/* Основной контейнер с отступом снизу для таб-бара */
-/* Обновлённый контейнер: добавляем нижний отступ, чтобы контент не перекрывался таб-баром */
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 20px 80px; /* нижний отступ, чтобы контент не закрывался таб-баром */
-}
 .info-buttons {
   position: fixed;
   bottom: 0;
@@ -152,21 +287,42 @@ body {
 }
 
 .info-btn.active {
-  background-color: #444;
-  color: #FFFFFF;
-  border: 2px solid #e55755;
+  background-color: #444 !important; /* Оставляем исходный фон для ночного режима */
+  color: #FFFFFF !important;
+  border: 2px solid #e55755 !important; /* Только красная обводка */
 }
 
 .info-btn:hover {
-  background-color: #f6b21d;
+  background-color: #f6b21d; /* Жёлтый фон при наведении */
   color: #000;
 }
 
+/* Убираем жёлтый фон для активной кнопки даже при наведении */
+.info-btn.active:hover {
+  background-color: #444 !important; /* Оставляем исходный фон */
+  color: #FFFFFF !important;
+}
 
+/* Дневная тема для кнопок таб-бара */
+body.day-theme .info-btn {
+  background-color: #FFFFFF; /* Белый фон */
+  color: #000000; /* Чёрный текст */
+}
 
+/* Дневная тема для активной кнопки таб-бара */
+body.day-theme .info-btn.active {
+  background-color: #FFFFFF !important; /* Белый фон */
+  color: #000000 !important;
+  border: 2px solid #e55755 !important; /* Только красная обводка */
+}
 
+/* Убираем жёлтый фон для активной кнопки в дневной теме при наведении */
+body.day-theme .info-btn.active:hover {
+  background-color: #FFFFFF !important; /* Оставляем белый фон */
+  color: #000000 !important;
+}
 
-/* ===== ОСНОВНЫЕ КАРТОЧКИ КАТЕГОРИЙ ===== */
+/* ===== ОСНОВНЫЕ КARTOЧКИ КАТЕГОРИЙ ===== */
 .categories-cards {
   margin: 0 auto 40px auto;
   display: flex;
@@ -212,12 +368,9 @@ body {
   box-shadow: 0 4px 15px rgba(255, 0, 0, 0.8);
 }
 
-
 /* ===== РАЗДЕЛ С БЛЮДАМИ ===== */
 .menu-items {
   margin: 0 auto 40px auto;
-  
-  /* Уже есть display: none; по умолчанию */
   position: relative; /* чтобы можно было позиционировать кнопку внутри */
 }
 
@@ -248,9 +401,6 @@ body {
   color: #000;
 }
 
-
-
-
 .items-list {
   display: grid;
   gap: 15px;
@@ -261,23 +411,17 @@ body {
   background: linear-gradient(135deg, rgba(42,42,42,0.85) 0%, rgba(30,30,30,0.85) 100%);
   border-radius: 8px;
   padding: 10px;
-  /* Основная тень + постоянное красное свечение */
-
-
   transition: transform 0.2s;
 }
 
-
 .menu-item:hover {
   transform: scale(1.02);
-  
 }
 
 .menu-item:active {
   transform: scale(0.97);
   box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
 }
-
 
 .menu-item img {
   width: 80%;
@@ -286,14 +430,9 @@ body {
   object-position: center;  /* Центрирование изображения */
 }
 
-
-
-
-
-
 /* Изменение размера и стиля заголовка блюда */
 .menu-item h3 {
-  font-size: 0.75rem;  /* Уменьшаем размер текста */       /* немного меньше, чем раньше */
+  font-size: 0.75rem;  /* Уменьшаем размер текста */
   color: #FFFFFF;        /* оставляем яркий оранжевый цвет */
   margin-bottom: 5px;
   text-transform: uppercase;
@@ -313,10 +452,8 @@ body {
 
 .menu-item:active {
   transform: scale(0.97);
-  /* Можно добавить или изменить тень при нажатии, если требуется */
   box-shadow: 0 2px 8px rgba(255, 0, 0, 0.8);
 }
-
 
 .dish-info {
   display: flex;
@@ -347,9 +484,6 @@ body {
   color: #ccc;
 }
 
-
-
-
 /* ===== АДАПТИВНЫЕ НАСТРОЙКИ ===== */
 @media (max-width: 500px) {
   .banner {
@@ -366,7 +500,6 @@ body {
   }
 }
 
-
 /* Модальное окно (скрыто по умолчанию) */
 .modal {
   display: none; /* Скрыто по умолчанию */
@@ -380,13 +513,7 @@ body {
   background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
 }
 
-
 /* Стили для модального окна */
-/* Стили для модального окна заказов */
-/* Стили для модального окна заказов */
-/* Модальное окно – остаётся фиксированным, но содержимое адаптивное */
-
-
 .modal-content {
   background-color: #2A2A2A;
   margin: 10% auto;
@@ -397,6 +524,7 @@ body {
   color: #aaa;
   box-sizing: border-box;
 }
+
 /* Если модальное окно заказов, можно задать аналогичные правила: */
 .order-modal-content {
   max-width: 500px;
@@ -409,8 +537,6 @@ body {
   display: block;
   margin: 0 auto;
 }
-
-
 
 .close {
   color: #aaa;
@@ -428,9 +554,36 @@ body {
   text-decoration: none;
 }
 
+/* Стили для контейнера кнопок в модальном окне блюда */
+.modal-controls {
+  display: flex;
+  justify-content: center; /* Центрируем кнопку "Закрыть" */
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap; /* Разрешаем перенос на маленьких экранах */
+}
 
+/* Стили для кнопки "Закрыть" внизу модального окна */
+.close-modal-footer {
+  background-color: #e55755; /* Красный цвет */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px; /* Увеличиваем внутренние отступы для текста */
+  width: 80px; /* Увеличиваем ширину, чтобы слово "Закрыть" помещалось */
+  height: 40px; /* Высота для квадратной формы */
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-
+.close-modal-footer:hover {
+  background-color: #d43f3d; /* Чуть темнее при наведении */
+}
 
 .custom-overlay {
   position: fixed;
@@ -451,6 +604,11 @@ body {
   text-align: center;
 }
 
+.custom-overlay-content h2 {
+  color: #FFFFFF; /* Белый текст */
+  margin-bottom: 20px;
+}
+
 .custom-overlay-btn {
   margin: 10px;
   padding: 10px 20px;
@@ -461,6 +619,9 @@ body {
   background-color: #e55755;
   color: #fff;
   transition: background-color 0.3s;
+  display: flex; /* Для выравнивания иконки и текста */
+  align-items: center;
+  justify-content: center;
 }
 
 .custom-overlay-btn:hover {
@@ -492,8 +653,10 @@ body {
   text-align: center;
 }
 
-
-
-
-
-
+/* Стили для иконок в кнопках оверлея */
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
