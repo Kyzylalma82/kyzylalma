@@ -7,8 +7,13 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Переключатель темы -->
+  <div id="theme-toggle" class="theme-toggle">
+    <div class="theme-icon moon-icon"></div>
+    <div class="theme-slider"></div>
+    <div class="theme-icon sun-icon"></div>
+  </div>
 
-  
   <div class="container">
     <!-- Баннер -->
     <div class="banner">
@@ -26,7 +31,6 @@
         </div>
       </div>
     </div>
-    
 
     <!-- Контейнер для динамически загружаемых карточек категорий -->
     <section class="categories-cards" id="categories-cards-container">
@@ -41,7 +45,7 @@
     </section>
   </div>
 
-  <!-- Таб-бар (иконки) вынесем отдельно, чтобы он всегда оставался видимым -->
+  <!-- Таб-бар (иконки) -->
   <div class="info-buttons" id="info-buttons">
     <button class="info-btn" data-action="categories">
       <img src="images/home-icon.png" alt="Главное меню" class="tab-icon">
@@ -52,25 +56,48 @@
     <button class="info-btn" data-category="drinks">
       <img src="images/drinks-icon.png" alt="Напитки" class="tab-icon">
     </button>
-    <!-- Изменили data-category на "showcase" и alt текст на "Витрина" -->
     <button class="info-btn" data-category="showcase">
       <img src="images/hot-icon.png" alt="Витрина" class="tab-icon">
     </button>
   </div>
-  
 
   <!-- Модальное окно для блюд -->
   <div id="dish-modal" class="modal">
     <div class="modal-content">
-      <span id="modal-close" class="close">&times;</span>
+      <span id="modal-close" class="close">×</span>
       <div id="dish-details"></div>
     </div>
   </div>
 
+  <!-- Модальное окно уведомления -->
+  <div id="notify-modal" class="modal">
+    <div class="notify-content">
+      <span class="close">×</span>
+      <div id="notify-details"></div>
+    </div>
+  </div>
 
-
-
-
+  <!-- Оверлей с выбором режима -->
+  <div id="overlay" class="custom-overlay">
+    <div class="custom-overlay-content">
+      <h2>Какой режим выбрать?</h2>
+      <div class="button-container">
+        <div class="button-wrapper">
+          <button id="qr-menu" class="custom-overlay-btn">
+            <img src="images/menu-icon.png" alt="Меню" class="btn-icon">
+            Только меню
+          </button>
+        </div>
+        <div class="button-wrapper">
+          <button id="qr-menu-plus" class="custom-overlay-btn">
+            <img src="images/waiter-icon.png" alt="Вызов официанта" class="btn-icon">
+            Меню + Вызов официанта
+          </button>
+          <p class="wifi-message">Подключитесь к Wi‑Fi</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Firebase App (core SDK) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -82,32 +109,6 @@
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
 
   <script src="script.js"></script>
-  
-  <!-- Добавляем обработчик для кнопки "Перейти на локальный сервер" -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      document.getElementById('goto-local-server').addEventListener('click', function() {
-        window.location.href = "http://192.168.0.152:5001/";
-      });
-    });
-  </script>
-
-
-  <div id="overlay" class="custom-overlay">
-    <div class="custom-overlay-content">
-      <h2>Выберите режим</h2>
-      <div class="button-container">
-        <div class="button-wrapper">
-          <button id="qr-menu" class="custom-overlay-btn">QR Menu</button>
-        </div>
-        <div class="button-wrapper">
-          <button id="qr-menu-plus" class="custom-overlay-btn">QR Menu +</button>
-          <p class="wifi-message">Подключитесь к Wi‑Fi</p>
-        </div>
-      </div>
-    </div>
-  </div>
-   
-
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93049042ec6b3710',t:'MTc0NDY0Nzk3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
